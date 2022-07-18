@@ -15,7 +15,7 @@ const server = async () => {
 
     app.use(express.json());
 
-    app.get('/user', (req, res) => {
+    app.get('/user', async (req, res) => {
       const userList = await User.find();
       return res.send(response(baseResponse.SUCCESS), userList)
     });
