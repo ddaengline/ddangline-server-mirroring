@@ -17,15 +17,17 @@ const server = async () => {
 
     app.get('/user', async (req, res) => {
       const userList = await User.find();
-      return res.send(response(baseResponse.SUCCESS), userList)
+      return res.send({userList})
     });
 
     app.post('/user', async (req, res) => {
       try {
-        const { username, email, password } = new User(req.body);
+        const { username, email, password } = req.body
         if (!username) return res.status(500).send(errResponse(baseResponse.SIGNUP_NICKNAME_EMPTY))
         if (!email) return res.status(500).send(errResponse(baseResponse.SIGNUP_EMAIL_EMPTY))
         if (!password) return res.status(500).send(errResponse(baseResponse.SIGNUP_PASSWORD_EMPTY))
+
+        const user = new User({username, email, password});
         await user.save();
         return res.send(response(baseResponse.SUCCESS));
       } catch (err) {
