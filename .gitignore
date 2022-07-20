@@ -3,6 +3,7 @@ package-lock.json
 .idea
 
 # Logs
+log/*
 logs
 *.log
 
