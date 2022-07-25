@@ -69,8 +69,8 @@ exports.verifyCode = async (email, validationCode) => {
   try {
     const connection = await mongoose.connect(MONGO_URI, { dbName });
     const mailObject = await MailAuthentication.findOne({ email });
-    if (!mailObject) return errResponse(baseResponse.AUTH_MAIL_EMPTY);
-    if (mailObject.code !== validationCode) return errResponse(baseResponse.AUTH_MAIL_WRONG);
+    if (!mailObject) return errResponse(baseResponse.AUTH_MAIL_WRONG);
+    else if (mailObject.code !== validationCode) return errResponse(baseResponse.AUTH_CODE_WRONG);
     connection.disconnect();
     const { isSuccess, code } = baseResponse.SUCCESS;
     return response({ isSuccess, code, message: '이메일 인증 성공' });
