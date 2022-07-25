@@ -22,9 +22,16 @@ exports.createUser = async (username, email, password) => {
     
     const connection = await mongoose.connect(MONGO_URI, { dbName });
     const userIdResult = await userDao.createUser(insertUserInfoParams);
-    console.log(userIdResult._id); // Object ID
     connection.disconnect();
-    return response(baseResponseStatus.SUCCESS, {userId: userIdResult._id});
+    
+    // access token 생성
+    let token = await jwt.sign(
+      { userId : userIdResult._id, } ,
+      jwtsecret,
+      // 유효기간 3시간
+      { expiresIn: '30h', subject: 'userInfo', });
+
+    return response(baseResponseStatus.SUCCESS, {userId: userIdResult._id, jwt: token});
   } catch (err) {
     // logger.error(`App - createUser Service error\n: ${err.message}`)
     console.log({ err });
