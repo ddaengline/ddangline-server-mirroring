@@ -2,8 +2,11 @@ module.exports = function (app) {
   const mail = require('./mailController');
 
   // 인증 코드 전송
-  app.post('/app/v1/email', mail.sendCode);
+  app.post('/app/v1/email/code', mail.sendCode);
 
   // 인증 코드 점검
-  app.post('/app/v1/email/auth', mail.verifyCode);
+  app.post('/app/v1/email/code/auth', mail.verifyCode);
+
+  // 이메일 중복
+  app.post('/app/v1/eamil', mail.checkEmailDuplication);
 };

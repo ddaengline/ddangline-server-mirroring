@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const { MONGO_URI, dbName } = require('../../../config/secret');
 const { MailAuthentication } = require('../../models/MailAuthentication');
+const { User } = require('../../models/User');
 const { response, errResponse } = require('../../../config/response');
 const baseResponse = require('../../../config/baseResponseStatus');
 const nodemail = require('nodemailer');
@@ -8,6 +9,20 @@ const ejs = require('ejs');
 const path = require('path');
 var appDir = path.dirname(require.main.filename);
 require('dotenv').config();
+
+// 이메일 중복 검사
+exports.checkEmailDuplication = async (email) => {
+  try {
+    const connection = await mongoose.connect(MONGO_URI, { dbName });
+    const emailUser = await User.findOne({ email });
+    if (emailUser) return errResponse(baseResponse.SIGNUP_REDUNDANT_EMAIL);
+    connection.disconnect();
+    const { isSuccess, code } = baseResponse.SUCCESS;
+    return response({ isSuccess, code, message: '중복된 이메일이 없습니다.' });
+  } catch (error) {
+    return errResponse(baseResponse.DB_ERROR);
+  }
+};
 
 // 인증 코드 전송
 exports.sendCode = async (mailToSend) => {

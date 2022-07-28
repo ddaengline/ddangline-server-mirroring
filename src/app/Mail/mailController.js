@@ -16,3 +16,10 @@ exports.verifyCode = async (req, res) => {
   const emailValidation = await mailService.verifyCode(email, code);
   return res.send(emailValidation);
 };
+
+exports.checkEmailDuplication = async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.send(errResponse(baseResponse.SIGNUP_EMAIL_EMPTY));
+  const emailUser = await mailService.checkEmailDuplication(email);
+  return res.send(emailUser);
+};
