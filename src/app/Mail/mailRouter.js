@@ -8,5 +8,5 @@ module.exports = function (app) {
   app.post('/app/v1/email/code/auth', mail.verifyCode);
 
   // 이메일 중복
-  app.post('/app/v1/eamil', mail.checkEmailDuplication);
+  app.post('/app/v1/email', mail.checkEmailDuplication);
 };
