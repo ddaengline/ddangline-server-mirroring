@@ -5,8 +5,10 @@ const { User } = require('../../models/User');
 const { response, errResponse } = require('../../../config/response');
 const baseResponse = require('../../../config/baseResponseStatus');
 const nodemail = require('nodemailer');
+const { google } = require('googleapis');
 const ejs = require('ejs');
 const path = require('path');
+const { oauth2, oauth2_v2 } = require('googleapis/build/src/apis/oauth2');
 var appDir = path.dirname(require.main.filename);
 require('dotenv').config();
 
@@ -28,28 +30,17 @@ exports.checkEmailDuplication = async (email) => {
 exports.sendCode = async (mailToSend) => {
   try {
     let authCode = Math.random().toString(36).substr(2, 11);
-    const { OAUTH_USER, OAUTH_CLIENT_ID, OAUTH_CLIENT_SECRET, OAUTH_REFRESH_TOKEN, OAUTH_MAIL_SERVICE, OAUTH_MAIL_HOST, OAUTH_MAIL_PORT } =
-      process.env;
-
-    let emailTemplate;
-    ejs.renderFile(appDir + '/src/template/authMail.ejs', { authCode }, (error, data) => {
-      if (error) return errResponse(baseResponse.DB_ERROR);
-      emailTemplate = data;
-    });
-
     const params = { email: mailToSend, code: authCode };
+    const { MAIL_HOST, MAIL_SERVICE, MAIL_SENDER, MAIL_PASSWORD } = process.env;
+    const emailTemplate = await ejs.renderFile(appDir + '/src/template/authMail.ejs', { authCode })
 
     const transporter = nodemail.createTransport({
-      service: OAUTH_MAIL_SERVICE,
-      host: OAUTH_MAIL_HOST,
-      port: OAUTH_MAIL_PORT,
+      service: MAIL_SERVICE,
+      host: MAIL_HOST,
       secure: true,
       auth: {
-        type: 'OAuth2',
-        user: OAUTH_USER,
-        clientId: OAUTH_CLIENT_ID,
-        clientSecret: OAUTH_CLIENT_SECRET,
-        refreshToken: OAUTH_REFRESH_TOKEN,
+        user: MAIL_SENDER,
+        pass: MAIL_PASSWORD,
       },
       tls: {
         rejectUnauthorized: false,
