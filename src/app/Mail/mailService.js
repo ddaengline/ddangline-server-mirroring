@@ -28,7 +28,7 @@ exports.checkEmailDuplication = async (email) => {
 exports.sendCode = async (mailToSend) => {
   try {
     let authCode = Math.random().toString(36).substr(2, 11);
-    const params = { email: mailToSend, code: authCode };
+    const params = { email: mailToSend, code: authCode};
     const { MAIL_HOST, MAIL_SERVICE, MAIL_SENDER, MAIL_PASSWORD } = process.env;
     const emailTemplate = await ejs.renderFile(appDir + '/src/template/authMail.ejs', { authCode })
 
@@ -54,9 +54,8 @@ exports.sendCode = async (mailToSend) => {
     };
 
     const connection = await mongoose.connect(MONGO_URI, { dbName });
-    let mailObject = await MailAuthentication.findOne({ email: mailToSend });
-    if (!mailObject) mailObject = new MailAuthentication(params);
-    else mailObject.code = authCode;
+    let mailObject = await MailAuthentication.findOneAndDelete({ email: mailToSend });
+    mailObject = new MailAuthentication(params);
 
     await Promise.all([transporter.sendMail(mailOption), mailObject.save()]);
     Promise.all([connection.disconnect(), transporter.close()]);
@@ -73,7 +72,7 @@ exports.verifyCode = async (email, validationCode) => {
   try {
     const connection = await mongoose.connect(MONGO_URI, { dbName });
     const mailObject = await MailAuthentication.findOne({ email });
-    if (!mailObject) return errResponse(baseResponse.AUTH_MAIL_WRONG);
+    if (!mailObject) return errResponse(baseResponse.AUTH_MAIL_WRONG);  // 3분 만료 후에도.
     else if (mailObject.code !== validationCode) return errResponse(baseResponse.AUTH_CODE_WRONG);
     connection.disconnect();
     const { isSuccess, code } = baseResponse.SUCCESS;
