@@ -5,10 +5,8 @@ const { User } = require('../../models/User');
 const { response, errResponse } = require('../../../config/response');
 const baseResponse = require('../../../config/baseResponseStatus');
 const nodemail = require('nodemailer');
-const { google } = require('googleapis');
 const ejs = require('ejs');
 const path = require('path');
-const { oauth2, oauth2_v2 } = require('googleapis/build/src/apis/oauth2');
 var appDir = path.dirname(require.main.filename);
 require('dotenv').config();
 
