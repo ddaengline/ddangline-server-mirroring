@@ -1,7 +1,7 @@
 const { Station } = require('../../models/Station');
 
-async function getStation(nameKR) {
-  const station = await Station.findOne({ nameKR }, { nameKR: 1, nameEN: 1 });
+async function getStation(nameEN) {
+  const station = await Station.findOne({ nameEN }, { nameKR: 1, nameEN: 1 });
   return station;
 }
 
