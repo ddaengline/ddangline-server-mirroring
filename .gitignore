@@ -13,6 +13,7 @@ node_modules/
 # Output of 'npm pack'
 *.tgz
 
-station.json
+*.json
+*.csv
 config
 .env
