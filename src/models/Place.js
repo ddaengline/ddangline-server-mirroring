@@ -9,7 +9,7 @@ const PlcaeSchema = new Schema(
     address: { type: String, required: true, trim: true },
     walkTime: { type: Number, enum: [5, 10, 15, 20], required: true },
     link: { type: [], trim: true, trim: true },
-    image: { type: [], trim: true, trim: true },
+    images: { type: [], trim: true, trim: true },
 
     tips: {
       type: [
@@ -20,10 +20,10 @@ const PlcaeSchema = new Schema(
         },
       ],
     },
-    totalLiked: { type: Number },
+    totalLiked: { type: Number, default: 0 },
     liked: { type: [Types.ObjectId], ref: 'user' },
     totalMarkd: { type: Number },
-    markd: { type: [Types.ObjectId], ref: 'user' },
+    marked: { type: [Types.ObjectId], ref: 'user' },
     totalVisited: { type: Number },
     visited: { type: [Types.ObjectId], ref: 'user' },
   },

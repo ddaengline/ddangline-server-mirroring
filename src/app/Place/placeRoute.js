@@ -5,8 +5,10 @@ module.exports = function (app) {
   // 카테고리 리스트
   app.get('/app/v1/places/category', jwtMiddleware, place.getCategory);
 
-  // 가게 리스트
-  app.get('/app/v1/places/category/{categoryId}', jwtMiddleware, place.getPlaces);
+  // 가게 리스트 6개
+  app.get('/app/v1/places/category/:categoryId/toggle', jwtMiddleware, place.getPlacesInToggle);
+  // 가게 리스트 전부
+  app.get('/app/v1/places/category/:categoryId', jwtMiddleware, place.getPlaces);
 
   // 가게 상세
   app.get('/app/v1/places/:placeId', jwtMiddleware, place.getPlaces);

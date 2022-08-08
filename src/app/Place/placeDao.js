@@ -1,8 +1,8 @@
 const { Place } = require('../../models/Place');
 
 async function getCategory(station, time, domain) {
-  const category = Place.aggregate()
-    .match({ domain: { $in: [domain] }, walkTime: time, station: { $in: [station] } }) // in은 배열이여야함.
+  const category = await Place.aggregate()
+    .match({ domain: { $in: [domain] }, walkTime: { $lte: time }, station: { $in: [station] } }) // in은 배열이여야함.
     .unwind({ path: '$theme' })
     .group({ _id: '$theme' });
 
@@ -11,12 +11,60 @@ async function getCategory(station, time, domain) {
 
 // 카레고리 안에 장소들 많은 순
 async function getTotalCategory() {
-  const category = Place.aggregate()
+  const category = await Place.aggregate()
     .unwind({ path: '$theme' })
     .group({ _id: '$theme', count: { $sum: 1 } })
     .sort({ field: 'asc', count: -1 })
     .project({ _id: 1 });
   return category;
+}
+
+// 6개
+async function getPlacesInToggle(categoryId, station, time, domain) {
+  switch (arguments.length) {
+    case 1: // home 화면
+      return await Place.aggregate()
+        .match({ theme: { $in: [categoryId] } })
+        .project({ _id: 1, name: 1, image: { $arrayElemAt: ['$images', 0] } })
+        .limit(6);
+
+    case 4: // search 화면
+      return await Place.aggregate()
+        .match({ theme: { $in: [categoryId] }, domain: { $in: [domain] }, walkTime: { $lte: time }, station: { $in: [station] } })
+        .project({ _id: 1, name: 1, image: { $arrayElemAt: ['$images', 0] } })
+        .limit(6);
+  }
+}
+
+async function getPlaces(userId, categoryId, station, time, domain) {
+  switch (arguments.length) {
+    case 2:
+      return await Place.aggregate()
+        .match({ theme: { $in: [categoryId] } })
+        .project({
+          _id: 1,
+          name: 1,
+          image: 1,
+          station: 1,
+          domain: 1,
+          isLiked: { $in: [userId, '$liked'] },
+          isMarked: { $in: [userId, '$marked'] },
+          isVisited: { $in: [userId, '$visited'] },
+        });
+    case 5:
+      return await Place.aggregate()
+        .match({ theme: { $in: [categoryId] }, domain: { $in: [domain] }, walkTime: { $lte: time }, station: { $in: [station] } })
+        .project({
+          _id: 1,
+          name: 1,
+          images: 1,
+          station: 1,
+          domain: 1,
+          isLiked: { $in: [userId, '$liked'] },
+          isMarked: { $in: [userId, '$marked'] },
+          isVisited: { $in: [userId, '$visited'] },
+        });
+  }
 }
 
 async function createPlace(req) {
@@ -30,12 +78,6 @@ async function createMany(places) {
   return result;
 }
 
-async function getRestaurant() {
-  const result = await Place.find({ domain: 'restaurant' });
-  console.log({ result });
-  return result;
-}
-
 // 가게 도메인 변경 API
 async function updatePlaces() {
   return await Promise.all([
@@ -46,4 +88,4 @@ async function updatePlaces() {
   ]);
 }
 
-module.exports = { getCategory, getTotalCategory, createPlace, createMany, updatePlaces, getRestaurant };
+module.exports = { getCategory, getTotalCategory, createPlace, createMany, updatePlaces, getPlacesInToggle, getPlaces };

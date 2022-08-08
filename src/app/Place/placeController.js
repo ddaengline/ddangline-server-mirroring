@@ -8,25 +8,42 @@ exports.getCategory = async (req, res) => {
   let searchParams = {};
   if (station) searchParams['station'] = station;
   if (time) searchParams['time'] = Number(time);
-  if (domain) searchParams['domain'] = domain
+  if (domain) searchParams['domain'] = domain;
 
   const result = await placeProvider.getCategory(searchParams);
   return res.send(result);
 };
 
-exports.getPlaces = async(req, res) =>{
-  const categoryId = req.params.categoryId
-  if(!categoryId) return res.send(errResponse(baseResponseStatus.CATEGORY_ID_EMPTY))
+exports.getPlacesInToggle = async (req, res) => {
+  const userIdFromJWT = req.verifiedToken.userId
+  const categoryId = req.params.categoryId;
+
   const { station, time, domain } = req.query;
-  let searchParams = { categoryId };
-  
+  if (!categoryId) return res.send(errResponse(baseResponseStatus.CATEGORY_ID_EMPTY));
+
+  let searchParams = {};
   if (station) searchParams['station'] = station;
   if (time) searchParams['time'] = Number(time);
   if (domain) searchParams['domain'] = domain;
 
-  const result = await placeProvider.getPlaces(searchParams);
-  return res.send(result)
-}
+  const result = await placeProvider.getPlacesInToggle(searchParams, categoryId);
+  return res.send(result);
+};
+
+exports.getPlaces = async (req, res) => {
+  const userIdFromJWT = req.verifiedToken.userId
+  const categoryId = req.params.categoryId;
+  const { station, time, domain } = req.query;
+  if (!categoryId) return res.send(errResponse(baseResponseStatus.CATEGORY_ID_EMPTY));
+
+  let searchParams = {};
+  if (station) searchParams['station'] = station;
+  if (time) searchParams['time'] = Number(time);
+  if (domain) searchParams['domain'] = domain;
+
+  const result = await placeProvider.getPlaces(userIdFromJWT, searchParams, categoryId);
+  return res.send(result);
+};
 
 exports.createPlace = async (req, res) => {
   const p = req.body;
@@ -43,4 +60,4 @@ exports.adminCreatePlaces = async (req, res) => {
 exports.updatePlaces = async (req, res) => {
   const updatedPlaces = await placeService.updatePlaces();
   return res.send(updatedPlaces);
-}
+};
