@@ -28,3 +28,11 @@ exports.getCategory = async (searchParams) => {
     return errResponse(baseResponseStatus.DB_ERROR);
   }
 };
+
+exports.getPlaces = async (req, res) => {
+  try {
+  } catch (err) {
+    console.log({ err });
+    return errResponse(baseResponseStatus.DB_ERROR);
+  }
+};

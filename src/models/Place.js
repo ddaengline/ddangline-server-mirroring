@@ -3,7 +3,7 @@ const { Schema, model, Types } = require('mongoose');
 const PlcaeSchema = new Schema(
   {
     name: { type: String, required: true, trim: true },
-    domain: { type: String, enum: ['cafe', 'culture', 'restaurant', 'bar'], required: true, trim: true, default: 'restaurant', trim: true },
+    domain: { type: String, enum: ['음식점', '카페', '주점', '문화생활'], required: true, trim: true, default: '음식점', trim: true },
     theme: { type: [], required: true, trim: true, trim: true },
     station: { type: [], required: true, trim: true, trim: true },
     address: { type: String, required: true, trim: true },

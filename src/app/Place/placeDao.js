@@ -5,6 +5,7 @@ async function getCategory(station, time, domain) {
     .match({ domain: { $in: [domain] }, walkTime: time, station: { $in: [station] } }) // in은 배열이여야함.
     .unwind({ path: '$theme' })
     .group({ _id: '$theme' });
+
   return category;
 }
 
@@ -29,4 +30,20 @@ async function createMany(places) {
   return result;
 }
 
-module.exports = { getCategory, getTotalCategory, createPlace, createMany };
+async function getRestaurant() {
+  const result = await Place.find({ domain: 'restaurant' });
+  console.log({ result });
+  return result;
+}
+
+// 가게 도메인 변경 API
+async function updatePlaces() {
+  return await Promise.all([
+    Place.updateMany({ domain: 'restaurant' }, { $set: { domain: '음식점' } }),
+    Place.updateMany({ domain: 'bar' }, { $set: { domain: '주점' } }),
+    Place.updateMany({ domain: 'cafe' }, { $set: { domain: '카페' } }),
+    Place.updateMany({ domain: 'culture' }, { $set: { domain: '문화생활' } }),
+  ]);
+}
+
+module.exports = { getCategory, getTotalCategory, createPlace, createMany, updatePlaces, getRestaurant };

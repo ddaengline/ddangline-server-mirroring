@@ -63,6 +63,19 @@ exports.imoprtPlaces = async () => {
   }
 };
 
+// 장소 doamin 변경
+exports.updatePlaces = async () => {
+  try {
+    const connection = await mongoose.connect(MONGO_URI, { dbName });
+    mongoose.set('debug', true);
+    const result = await placeDao.updatePlaces();
+    return response(baseResponseStatus.SUCCESS, result);
+  } catch (err) {
+    console.log({ err });
+    return errResponse(baseResponseStatus.DB_ERROR);
+  }
+};
+
 // 장소 추가
 // TODO : 2차 배포때
 exports.createPlace = async (req) => {
