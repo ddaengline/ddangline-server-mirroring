@@ -42,6 +42,7 @@ async function getPlacesInToggle( categoryId, station, time, domain ) {
 }
 
 async function getPlaces( userId, categoryId, pageOffSet, station, time, domain ) {
+  // TODO: 좋아요 순 sort
   const limit = 20;
   const skip = limit * pageOffSet;
   switch (arguments.length) {
@@ -50,8 +51,8 @@ async function getPlaces( userId, categoryId, pageOffSet, station, time, domain 
       return Place.aggregate()
         .match({ theme: { $in: [categoryId] } })
         .limit(skip + limit)
+        // .sort({ field: 'asc', totalLiked: -1})
         .skip(skip)
-        .sort({ field: 'asc', totalLiked: -1})
         .project({
           _id: 1,
           name: 1,
@@ -73,11 +74,10 @@ async function getPlaces( userId, categoryId, pageOffSet, station, time, domain 
         })
         .limit(skip + limit)
         .skip(skip)
-        .sort({ field: 'asc', totalLiked: -1})
+        // .sort({ field: 'asc', totalLiked: -1})
         .project({
           _id: 1,
           name: 1,
-          totalLiked: 1,
           station: { $arrayElemAt: ['$station', 0] },
           images: { $slice: ["$images", 2] },
           domain: 1,
