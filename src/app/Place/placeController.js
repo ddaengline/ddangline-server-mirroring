@@ -31,17 +31,20 @@ exports.getPlacesInToggle = async (req, res) => {
 };
 
 exports.getPlaces = async (req, res) => {
+  // TODO: pagination 적용해야함.
   const userIdFromJWT = req.verifiedToken.userId
   const categoryId = req.params.categoryId;
-  const { station, time, domain } = req.query;
+  const { station, time, domain, page } = req.query;
   if (!categoryId) return res.send(errResponse(baseResponseStatus.CATEGORY_ID_EMPTY));
+  if (!page) return res.send(errResponse(baseResponseStatus.PAGE_FLAG_EMPTY));
+  if(page < 0) return res.send(errResponse(baseResponseStatus.PAGE_FLAG_WRONG))
 
   let searchParams = {};
   if (station) searchParams['station'] = station;
   if (time) searchParams['time'] = Number(time);
   if (domain) searchParams['domain'] = domain;
 
-  const result = await placeProvider.getPlaces(userIdFromJWT, searchParams, categoryId);
+  const result = await placeProvider.getPlaces(userIdFromJWT, searchParams, categoryId, Number(page));
   return res.send(result);
 };
 

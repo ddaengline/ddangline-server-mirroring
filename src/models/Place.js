@@ -10,7 +10,6 @@ const PlcaeSchema = new Schema(
     walkTime: { type: Number, enum: [5, 10, 15, 20], required: true },
     link: { type: [], trim: true, trim: true },
     images: { type: [], trim: true, trim: true },
-
     tips: {
       type: [
         {
@@ -22,9 +21,9 @@ const PlcaeSchema = new Schema(
     },
     totalLiked: { type: Number, default: 0 },
     liked: { type: [Types.ObjectId], ref: 'user' },
-    totalMarkd: { type: Number },
+    totalMarked: { type: Number, default: 0 },
     marked: { type: [Types.ObjectId], ref: 'user' },
-    totalVisited: { type: Number },
+    totalVisited: { type: Number, default: 0 },
     visited: { type: [Types.ObjectId], ref: 'user' },
   },
   { timestamps: true }

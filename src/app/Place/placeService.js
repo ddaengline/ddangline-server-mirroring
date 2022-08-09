@@ -68,7 +68,7 @@ exports.updatePlaces = async () => {
   try {
     const connection = await mongoose.connect(MONGO_URI, { dbName });
     mongoose.set('debug', true);
-    const result = await placeDao.updatePlaces();
+    const result = await placeDao.updateDefault();
     return response(baseResponseStatus.SUCCESS, result);
   } catch (err) {
     console.log({ err });

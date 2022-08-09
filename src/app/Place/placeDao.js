@@ -1,6 +1,6 @@
 const { Place } = require('../../models/Place');
 
-async function getCategory(station, time, domain) {
+async function getCategory( station, time, domain ) {
   const category = await Place.aggregate()
     .match({ domain: { $in: [domain] }, walkTime: { $lte: time }, station: { $in: [station] } }) // in은 배열이여야함.
     .unwind({ path: '$theme' })
@@ -20,40 +20,38 @@ async function getTotalCategory() {
 }
 
 // 6개
-async function getPlacesInToggle(categoryId, station, time, domain) {
+async function getPlacesInToggle( categoryId, station, time, domain ) {
   switch (arguments.length) {
     case 1: // home 화면
-      return await Place.aggregate()
+      return Place.aggregate()
         .match({ theme: { $in: [categoryId] } })
         .project({ _id: 1, name: 1, image: { $arrayElemAt: ['$images', 0] } })
         .limit(6);
 
     case 4: // search 화면
-      return await Place.aggregate()
-        .match({ theme: { $in: [categoryId] }, domain: { $in: [domain] }, walkTime: { $lte: time }, station: { $in: [station] } })
+      return Place.aggregate()
+        .match({
+          theme: { $in: [categoryId] },
+          domain: { $in: [domain] },
+          walkTime: { $lte: time },
+          station: { $in: [station] }
+        })
         .project({ _id: 1, name: 1, image: { $arrayElemAt: ['$images', 0] } })
         .limit(6);
   }
 }
 
-async function getPlaces(userId, categoryId, station, time, domain) {
+async function getPlaces( userId, categoryId, pageOffSet, station, time, domain ) {
+  const limit = 20;
+  const skip = limit * pageOffSet;
   switch (arguments.length) {
-    case 2:
-      return await Place.aggregate()
+    // home
+    case 3:
+      return Place.aggregate()
         .match({ theme: { $in: [categoryId] } })
-        .project({
-          _id: 1,
-          name: 1,
-          image: 1,
-          station: 1,
-          domain: 1,
-          isLiked: { $in: [userId, '$liked'] },
-          isMarked: { $in: [userId, '$marked'] },
-          isVisited: { $in: [userId, '$visited'] },
-        });
-    case 5:
-      return await Place.aggregate()
-        .match({ theme: { $in: [categoryId] }, domain: { $in: [domain] }, walkTime: { $lte: time }, station: { $in: [station] } })
+        .limit(skip + limit)
+        .skip(skip)
+        .sort({ field: 'asc', totalLiked: -1})
         .project({
           _id: 1,
           name: 1,
@@ -64,16 +62,39 @@ async function getPlaces(userId, categoryId, station, time, domain) {
           isMarked: { $in: [userId, '$marked'] },
           isVisited: { $in: [userId, '$visited'] },
         });
+    case 6:
+      // search
+      return Place.aggregate()
+        .match({
+          theme: { $in: [categoryId] },
+          domain: { $in: [domain] },
+          walkTime: { $lte: time },
+          station: { $in: [station] }
+        })
+        .limit(skip + limit)
+        .skip(skip)
+        .sort({ field: 'asc', totalLiked: -1})
+        .project({
+          _id: 1,
+          name: 1,
+          totalLiked: 1,
+          station: { $arrayElemAt: ['$station', 0] },
+          images: { $slice: ["$images", 2] },
+          domain: 1,
+          isLiked: { $in: [userId, '$liked'] },
+          isMarked: { $in: [userId, '$marked'] },
+          isVisited: { $in: [userId, '$visited'] },
+        });
   }
 }
 
-async function createPlace(req) {
+async function createPlace( req ) {
   const place = new Place(req);
   const res = await place.save();
   return res;
 }
 
-async function createMany(places) {
+async function createMany( places ) {
   const result = await Place.insertMany(places);
   return result;
 }
@@ -88,4 +109,9 @@ async function updatePlaces() {
   ]);
 }
 
-module.exports = { getCategory, getTotalCategory, createPlace, createMany, updatePlaces, getPlacesInToggle, getPlaces };
+// 가게 도메인 변경 API
+async function updateDefault() {
+  return Place.updateMany({}, { $set: { totalLiked: 0, totalMarked: 0, totalVisited: 0 } });
+}
+
+module.exports = { getCategory, getTotalCategory, createPlace, createMany, getPlacesInToggle, getPlaces, updateDefault };

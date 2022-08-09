@@ -49,12 +49,12 @@ exports.getPlacesInToggle = async (searchParams, categoryId) => {
   }
 };
 
-exports.getPlaces = async (userId, searchParams, categoryId) => {
+exports.getPlaces = async (userId, searchParams, categoryId, pageOffSet) => {
   try {
     let result;
     // home 화면, 좋아요 순
     if (Object.keys(searchParams).length === 0) {
-      result = await placeDao.getPlaces(userId, categoryId);
+      result = await placeDao.getPlaces(userId, categoryId, pageOffSet);
     }
     // search 화면, 랜덤
     else {
@@ -63,7 +63,7 @@ exports.getPlaces = async (userId, searchParams, categoryId) => {
       if (!time) return errResponse(baseResponseStatus.PLACE_TIME_EMPTY);
       if (!domain) return errResponse(baseResponseStatus.PLACE_DOMAIN_EMPTY);
 
-      result = await placeDao.getPlaces(userId, categoryId, station, time, domain);
+      result = await placeDao.getPlaces(userId, categoryId, pageOffSet, station, time, domain);
     }
     return response(baseResponseStatus.SUCCESS, result);
   } catch (err) {
