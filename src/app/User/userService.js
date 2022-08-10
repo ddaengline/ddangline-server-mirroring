@@ -29,7 +29,7 @@ exports.createUser = async (username, email, password) => {
       { userId : userIdResult._id, } ,
       jwtsecret,
       // 유효기간 3시간
-      { expiresIn: '30h', subject: 'userInfo', });
+      { subject: 'userInfo', });
 
     return response(baseResponseStatus.SUCCESS, {userId: userIdResult._id, jwt: token});
   } catch (err) {
@@ -59,8 +59,9 @@ exports.postSignIn = async (resEmail, resPassword) => {
     let token = await jwt.sign(
       { userId, } ,
       jwtsecret,
-      // 유효기간 3시간
-      { expiresIn: '30h', subject: 'userInfo', });
+      // TODO: 유효기간 확인해야하지 않나
+      // 유효기간 없음.
+      { subject: 'userInfo', });
       return response(baseResponseStatus.SUCCESS, {userId , jwt: token})
   } catch (err) {
     console.log({ err });

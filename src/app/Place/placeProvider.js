@@ -4,12 +4,11 @@ const { response, errResponse } = require('../../../config/response');
 const { MONGO_URI, dbName } = require('../../../config/secret');
 const placeDao = require('./placeDao');
 
-mongoose.connect(MONGO_URI, { dbName });
-
 exports.getCategory = async (searchParams) => {
   let result;
   let categories;
   try {
+    const connection = await mongoose.connect(MONGO_URI, { dbName });
     if (Object.keys(searchParams).length === 0) {
       // home 화면, 좋아요 순
       categories = await placeDao.getTotalCategory();
@@ -21,6 +20,7 @@ exports.getCategory = async (searchParams) => {
       if (!domain) return errResponse(baseResponseStatus.PLACE_DOMAIN_EMPTY);
       categories = await placeDao.getCategory(station, time, domain);
     }
+    connection.disconnect();
     result = { size: categories.length, categories };
     return response(baseResponseStatus.SUCCESS, result);
   } catch (err) {
@@ -32,6 +32,7 @@ exports.getCategory = async (searchParams) => {
 exports.getPlacesInToggle = async (searchParams, categoryId) => {
   try {
     let result;
+    const connection = await mongoose.connect(MONGO_URI, { dbName });
     // home 화면, 좋아요 순
     if (Object.keys(searchParams).length === 0) result = await placeDao.getPlacesInToggle(categoryId);
     // search 화면, 랜덤
@@ -42,6 +43,7 @@ exports.getPlacesInToggle = async (searchParams, categoryId) => {
       if (!domain) return errResponse(baseResponseStatus.PLACE_DOMAIN_EMPTY);
       result = await placeDao.getPlacesInToggle(categoryId, station, time, domain);
     }
+    connection.disconnect();
     return response(baseResponseStatus.SUCCESS, result);
   } catch (err) {
     console.log({ err });
@@ -52,6 +54,7 @@ exports.getPlacesInToggle = async (searchParams, categoryId) => {
 exports.getPlaces = async (userId, searchParams, categoryId, pageOffSet) => {
   try {
     let result;
+    const connection = await mongoose.connect(MONGO_URI, { dbName });
     // home 화면, 좋아요 순
     if (Object.keys(searchParams).length === 0) {
       result = await placeDao.getPlaces(userId, categoryId, pageOffSet);
@@ -65,6 +68,7 @@ exports.getPlaces = async (userId, searchParams, categoryId, pageOffSet) => {
 
       result = await placeDao.getPlaces(userId, categoryId, pageOffSet, station, time, domain);
     }
+    connection.disconnect();
     return response(baseResponseStatus.SUCCESS, result);
   } catch (err) {
     console.log({ err });
