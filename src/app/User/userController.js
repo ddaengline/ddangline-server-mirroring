@@ -25,15 +25,25 @@ exports.getUsers = async(req, res) => {
   return res.send(userList);
 };
 
-exports.getUser = async(req, res) =>{
+exports.getUser = async(req, res) => {
   const { userId } = req.params;
   const userIdFromJWT = req.verifiedToken.userId
-  if(!mongoose.isValidObjectId(userId)) return res.send(errResponse(baseResponseStatus.USER_USERID_WRONG))
-  if(userId !== userIdFromJWT) return res.send(errResponse(baseResponseStatus.USER_USERID_JWT_WRONG))
+  if (!mongoose.isValidObjectId(userId)) return res.send(errResponse(baseResponseStatus.USER_USERID_WRONG))
+  if (userId !== userIdFromJWT) return res.send(errResponse(baseResponseStatus.USER_USERID_JWT_WRONG))
   const user = await userProvider.getUser(userIdFromJWT)
   return res.send(user)
 }
 
+exports.updateUserName = async(req, res) => {
+  const { userId } = req.params;
+  const { name } = req.body;
+  const userIdFromJWT = req.verifiedToken.userId
+  if (!mongoose.isValidObjectId(userId)) return res.send(errResponse(baseResponseStatus.USER_USERID_WRONG))
+  if (userId !== userIdFromJWT) return res.send(errResponse(baseResponseStatus.USER_USERID_JWT_WRONG))
+  if(!name || name.length === 0) return res.send(errResponse(baseResponseStatus.SIGNUP_NICKNAME_EMPTY))
+  const user = await userProvider.updateUserName(userId, name)
+  return res.send(user)
+}
 
 exports.login = async(req, res) => {
   const { email, password } = req.body;

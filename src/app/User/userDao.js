@@ -12,7 +12,15 @@ async function getUsers(){
 }
 
 async function getUser(id){
-  return User.findById(id, {_id: 1, username: 1, email: 1})
+  return User.findById(id, { _id: 1, username: 1, email: 1 })
+}
+
+async function updateUserName(id, name){
+  return User.findOneAndUpdate({ _id: id }, { username: name }, {
+    runValidators: true,
+    new: true,
+    projection: { _id: 1, username: 1 }
+  })
 }
 
 async function getUserByEmail(email){
@@ -31,5 +39,5 @@ async function socialIdCheck(id){
 }
 
 module.exports = {
-  createUser, getUsers, getUser, getUserByEmail, emailCheck, socialIdCheck,
+  createUser, getUsers, getUser, updateUserName, getUserByEmail, emailCheck, socialIdCheck,
 };

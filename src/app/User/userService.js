@@ -15,8 +15,8 @@ exports.createUser = async(postParams) => {
     const { username, email, social, password } = postParams
     if (!password) return errResponse(baseResponseStatus.SIGNUP_PASSWORD_EMPTY)
     if (!social) {
-      if (!username) return errResponse(baseResponseStatus.SIGNUP_EMAIL_EMPTY)
-      if (!email) return errResponse(baseResponseStatus.SIGNUP_NICKNAME_EMPTY)
+      if (!username) return errResponse(baseResponseStatus.SIGNUP_NICKNAME_EMPTY)
+      if (!email) return errResponse(baseResponseStatus.SIGNUP_EMAIL_EMPTY)
     } else {
       if (!social.uniqueId) return errResponse(baseResponseStatus.SIGNIN_SOCIAL_ID_EMPTY)
       const socialIdCheck = await userProvider.socialIdCheck(social.uniqueId)
