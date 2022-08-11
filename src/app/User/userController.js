@@ -8,14 +8,14 @@ const baseResponseStatus = require('../../../config/baseResponseStatus');
 // const regexEmail = require('')
 
 exports.postUser = async(req, res) => {
-  const { username, email, uniqueId, password } = req.body;
+  const { username, email, social, password } = req.body;
   let postParams = {}
 
-  if(email)
+  if (email)
     if (email.length > 30) return res.send(response(baseResponse.SIGNUP_EMAIL_LENGTH))
     else postParams['email'] = email
-  if(username) postParams['username'] = email
-  if(uniqueId) postParams['uniqueId'] = uniqueId
+  if (username) postParams['username'] = email
+  if (social) postParams['social'] = social
   if (password) postParams['password'] = password
 
   const signUpResponse = await userService.createUser(postParams);
