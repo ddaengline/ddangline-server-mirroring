@@ -3,7 +3,7 @@ const baseResponseStatus = require('../../../config/baseResponseStatus');
 const placeProvider = require('./placeProvider');
 const placeService = require('./placeService');
 
-exports.getCategory = async (req, res) => {
+exports.getCategory = async(req, res) => {
   const { station, time, domain } = req.query;
   let searchParams = {};
   if (station) searchParams['station'] = station;
@@ -14,8 +14,7 @@ exports.getCategory = async (req, res) => {
   return res.send(result);
 };
 
-exports.getPlacesInToggle = async (req, res) => {
-  const userIdFromJWT = req.verifiedToken.userId
+exports.getPlacesInToggle = async(req, res) => {
   const categoryId = req.params.categoryId;
 
   const { station, time, domain } = req.query;
@@ -30,14 +29,14 @@ exports.getPlacesInToggle = async (req, res) => {
   return res.send(result);
 };
 
-exports.getPlaces = async (req, res) => {
+exports.getPlaces = async(req, res) => {
   // TODO: pagination 적용해야함.
   const userIdFromJWT = req.verifiedToken.userId
   const categoryId = req.params.categoryId;
   const { station, time, domain, page } = req.query;
   if (!categoryId) return res.send(errResponse(baseResponseStatus.CATEGORY_ID_EMPTY));
   if (!page) return res.send(errResponse(baseResponseStatus.PAGE_FLAG_EMPTY));
-  if(page < 0) return res.send(errResponse(baseResponseStatus.PAGE_FLAG_WRONG))
+  if (page < 0) return res.send(errResponse(baseResponseStatus.PAGE_FLAG_WRONG))
 
   let searchParams = {};
   if (station) searchParams['station'] = station;
@@ -48,19 +47,29 @@ exports.getPlaces = async (req, res) => {
   return res.send(result);
 };
 
-exports.createPlace = async (req, res) => {
+exports.getPlace = async(req, res) => {
+  const userIdFromJWT = req.verifiedToken.userId
+  const placeId = req.params.placeId;
+  // TODO: placeId validation
+  if(!placeId) return res.send(errResponse(baseResponseStatus.PLACE_ID_EMPTY))
+
+  const result = await placeProvider.getPlace(placeId, userIdFromJWT);
+  return res.send(result)
+}
+
+exports.createPlace = async(req, res) => {
   const p = req.body;
   console.log(p);
   const createdPlace = await placeService.createPlace(p);
   return res.send(createdPlace);
 };
 
-exports.adminCreatePlaces = async (req, res) => {
+exports.adminCreatePlaces = async(req, res) => {
   const createdPlaces = await placeService.imoprtPlaces();
   return res.send(createdPlaces);
 };
 
-exports.updatePlaces = async (req, res) => {
+exports.updatePlaces = async(req, res) => {
   const updatedPlaces = await placeService.updatePlaces();
   return res.send(updatedPlaces);
 };

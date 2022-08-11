@@ -4,14 +4,14 @@ const { response, errResponse } = require('../../../config/response');
 const { MONGO_URI, dbName } = require('../../../config/secret');
 const placeDao = require('./placeDao');
 
-exports.getCategory = async (searchParams) => {
+exports.getCategory = async(searchParams) => {
   let result;
   let categories;
   try {
     const connection = await mongoose.connect(MONGO_URI, { dbName });
     if (Object.keys(searchParams).length === 0) {
       // home 화면, 좋아요 순
-      categories = await placeDao.getTotalCategory();
+      categories = await placeDao.getCategory();
     } else {
       // search 화면, 랜덤
       const { station, time, domain } = searchParams;
@@ -23,13 +23,13 @@ exports.getCategory = async (searchParams) => {
     connection.disconnect();
     result = { size: categories.length, categories };
     return response(baseResponseStatus.SUCCESS, result);
-  } catch (err) {
+  } catch(err) {
     console.log({ err });
     return errResponse(baseResponseStatus.DB_ERROR);
   }
 };
 
-exports.getPlacesInToggle = async (searchParams, categoryId) => {
+exports.getPlacesInToggle = async(searchParams, categoryId) => {
   try {
     let result;
     const connection = await mongoose.connect(MONGO_URI, { dbName });
@@ -45,13 +45,14 @@ exports.getPlacesInToggle = async (searchParams, categoryId) => {
     }
     connection.disconnect();
     return response(baseResponseStatus.SUCCESS, result);
-  } catch (err) {
+  } catch(err) {
     console.log({ err });
     return errResponse(baseResponseStatus.DB_ERROR);
   }
 };
 
-exports.getPlaces = async (userId, searchParams, categoryId, pageOffSet) => {
+// 장소 list
+exports.getPlaces = async(userId, searchParams, categoryId, pageOffSet) => {
   try {
     let result;
     const connection = await mongoose.connect(MONGO_URI, { dbName });
@@ -70,8 +71,21 @@ exports.getPlaces = async (userId, searchParams, categoryId, pageOffSet) => {
     }
     connection.disconnect();
     return response(baseResponseStatus.SUCCESS, result);
-  } catch (err) {
+  } catch(err) {
     console.log({ err });
     return errResponse(baseResponseStatus.DB_ERROR);
   }
 };
+
+// 특정 장소 상세
+exports.getPlace = async(placeId, userIdFromJWT) => {
+  try {
+    const connection = await mongoose.connect(MONGO_URI, { dbName })
+    const result = await placeDao.getPlace(placeId, userIdFromJWT)
+    connection.disconnect()
+    return response(baseResponseStatus.SUCCESS, result)
+  } catch(err) {
+    console.log({ err })
+    return errResponse(baseResponseStatus.DB_ERROR)
+  }
+}

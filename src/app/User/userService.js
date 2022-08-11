@@ -11,14 +11,20 @@ const baseResponseStatus = require('../../../config/baseResponseStatus');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 
-exports.createUser = async (username, email, password) => {
+exports.createUser = async (postParams) => {
   try {
+    const { username, email, uniqueId, password } = postParams
+    if(!password) return errResponse(baseResponseStatus.SIGNUP_PASSWORD_EMPTY)
+    if(!uniqueId){
+      if(!username) return errResponse(baseResponseStatus.SIGNUP_EMAIL_EMPTY)
+      if(!email) return errResponse(baseResponseStatus.SIGNUP_NICKNAME_EMPTY)
+    }
     // 이메일 중복
     const userEmailCheck = await userProvider.emailCheck(email)
     if (userEmailCheck) return errResponse(baseResponseStatus.SIGNUP_REDUNDANT_EMAIL)
 
     const hashedPassword = await crypto.createHash('sha512').update(password).digest('hex');
-    const insertUserInfoParams = { username, email, password: hashedPassword};
+    const insertUserInfoParams = { username, email, password: hashedPassword, uniqueId};
     
     const connection = await mongoose.connect(MONGO_URI, { dbName });
     const userIdResult = await userDao.createUser(insertUserInfoParams);

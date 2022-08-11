@@ -1,26 +1,27 @@
 const { Place } = require('../../models/Place');
+const mongoose = require('mongoose')
+const ObjectId = mongoose.Types.ObjectId
 
-async function getCategory( station, time, domain ) {
-  const category = await Place.aggregate()
-    .match({ domain: { $in: [domain] }, walkTime: { $lte: time }, station: { $in: [station] } }) // in은 배열이여야함.
-    .unwind({ path: '$theme' })
-    .group({ _id: '$theme' });
+// 카테고리
+async function getCategory(station, time, domain){
+  switch (arguments.length) {
+    case 0: // home 화면
+      return Place.aggregate()
+        .unwind({ path: '$theme' })
+        .group({ _id: '$theme', count: { $sum: 1 } })
+        .sort({ field: 'asc', count: -1 })
+        .project({ _id: 1 });
 
-  return category;
+    case 3: // search 화면
+      return Place.aggregate()
+        .match({ domain: { $in: [domain] }, walkTime: { $lte: time }, station: { $in: [station] } }) // in은 배열이여야함.
+        .unwind({ path: '$theme' })
+        .group({ _id: '$theme' });
+  }
 }
 
-// 카레고리 안에 장소들 많은 순
-async function getTotalCategory() {
-  const category = await Place.aggregate()
-    .unwind({ path: '$theme' })
-    .group({ _id: '$theme', count: { $sum: 1 } })
-    .sort({ field: 'asc', count: -1 })
-    .project({ _id: 1 });
-  return category;
-}
-
-// 6개
-async function getPlacesInToggle( categoryId, station, time, domain ) {
+// 카테고리 안 가게 6개
+async function getPlacesInToggle(categoryId, station, time, domain){
   switch (arguments.length) {
     case 1: // home 화면
       return Place.aggregate()
@@ -41,7 +42,7 @@ async function getPlacesInToggle( categoryId, station, time, domain ) {
   }
 }
 
-async function getPlaces( userId, categoryId, pageOffSet, station, time, domain ) {
+async function getPlaces(userId, categoryId, pageOffSet, station, time, domain){
   // TODO: 좋아요 순 sort
   const limit = 20;
   const skip = limit * pageOffSet;
@@ -88,19 +89,33 @@ async function getPlaces( userId, categoryId, pageOffSet, station, time, domain 
   }
 }
 
-async function createPlace( req ) {
+async function getPlace(placeId, userId){
+  return Place.findOne({_id: placeId}, {
+    _id: 1,
+    name: 1,
+    station: { $arrayElemAt: ['$station', 0] },
+    images: 1,
+    domain: 1,
+    isLiked: { $in: [userId, '$liked'] },
+    isMarked: { $in: [userId, '$marked'] },
+    isVisited: { $in: [userId, '$visited'] },
+    tips: 1
+  })
+}
+
+async function createPlace(req){
   const place = new Place(req);
   const res = await place.save();
   return res;
 }
 
-async function createMany( places ) {
+async function createMany(places){
   const result = await Place.insertMany(places);
   return result;
 }
 
 // 가게 도메인 변경 API
-async function updatePlaces() {
+async function updatePlaces(){
   return await Promise.all([
     Place.updateMany({ domain: 'restaurant' }, { $set: { domain: '음식점' } }),
     Place.updateMany({ domain: 'bar' }, { $set: { domain: '주점' } }),
@@ -110,8 +125,16 @@ async function updatePlaces() {
 }
 
 // 가게 도메인 변경 API
-async function updateDefault() {
+async function updateDefault(){
   return Place.updateMany({}, { $set: { totalLiked: 0, totalMarked: 0, totalVisited: 0 } });
 }
 
-module.exports = { getCategory, getTotalCategory, createPlace, createMany, getPlacesInToggle, getPlaces, updateDefault };
+module.exports = {
+  getCategory,
+  getPlaces,
+  getPlace,
+  createPlace,
+  createMany,
+  getPlacesInToggle,
+  updateDefault
+};
