@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 const { MONGO_URI, dbName } = require('../../../config/secret');
+const { response, errResponse } = require('../../../config/response');
+const baseResponseStatus = require('../../../config/baseResponseStatus');
 const userDao = require('./userDao');
 
 exports.getUsers = async() => {
@@ -7,12 +9,18 @@ exports.getUsers = async() => {
     const connection = await mongoose.connect(MONGO_URI, { dbName });
     const userList = await userDao.getUsers();
     connection.disconnect();
-    return userList;
+    return userList ? response(baseResponseStatus.SUCCESS, userList) : errResponse(baseResponseStatus.DB_ERROR)
   } catch(err) {
-    console.log({ err });
     return err;
   }
 };
+
+exports.getUser = async(id) => {
+  const connection = await mongoose.connect(MONGO_URI, { dbName });
+  const user = await userDao.getUser(id);
+  connection.disconnect();
+  return user ? response(baseResponseStatus.SUCCESS, user) : errResponse(baseResponseStatus.DB_ERROR)
+}
 
 exports.getUserByEmail = async(email) => {
   try {
@@ -21,7 +29,6 @@ exports.getUserByEmail = async(email) => {
     connection.disconnect();
     return user;
   } catch(err) {
-    console.log({ err });
     return err;
   }
 };
@@ -33,7 +40,6 @@ exports.emailCheck = async(email) => {
     connection.disconnect();
     return emailCheckResult;
   } catch(err) {
-    console.log({ err });
     return err;
   }
 };
@@ -45,7 +51,6 @@ exports.socialIdCheck = async(id) => {
     connection.disconnect();
     return socialIdCheck;
   } catch(err) {
-    console.log({ err })
     return err;
   }
 }

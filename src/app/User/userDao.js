@@ -8,12 +8,16 @@ async function createUser(insertUserInfoParams){
 }
 
 async function getUsers(){
-  return await User.find({}, { _id: 1, username: 1, email: 1 });
+  return User.find({}, { _id: 1, username: 1, email: 1 });
+}
+
+async function getUser(id){
+  return User.findById(id, {_id: 1, username: 1, email: 1})
 }
 
 async function getUserByEmail(email){
   // null, Object
-  return await User.findOne({ email });
+  return User.findOne({ email });
 }
 
 async function emailCheck(inputEmail){
@@ -27,9 +31,5 @@ async function socialIdCheck(id){
 }
 
 module.exports = {
-  createUser,
-  getUsers,
-  getUserByEmail,
-  emailCheck,
-  socialIdCheck,
+  createUser, getUsers, getUser, getUserByEmail, emailCheck, socialIdCheck,
 };

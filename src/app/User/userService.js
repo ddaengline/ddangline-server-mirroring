@@ -1,15 +1,14 @@
 const mongoose = require('mongoose');
 const { MONGO_URI, dbName } = require('../../../config/secret');
 const { jwtsecret } = require('../../../config/secret');
-const { logger } = require('../../../config/winston')
-
-const userProvider = require('./userProvider');
-const userDao = require('./userDao');
+const { logger } = require('../../../config/winston');
 const { response, errResponse } = require('../../../config/response');
 const baseResponseStatus = require('../../../config/baseResponseStatus');
-
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
+const userProvider = require('./userProvider');
+const userDao = require('./userDao');
+
 
 exports.createUser = async(postParams) => {
   try {
