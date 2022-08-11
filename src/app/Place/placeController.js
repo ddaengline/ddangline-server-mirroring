@@ -30,7 +30,6 @@ exports.getPlacesInToggle = async(req, res) => {
 };
 
 exports.getPlaces = async(req, res) => {
-  // TODO: pagination 적용해야함.
   const userIdFromJWT = req.verifiedToken.userId
   const categoryId = req.params.categoryId;
   const { station, time, domain, page } = req.query;
@@ -50,7 +49,6 @@ exports.getPlaces = async(req, res) => {
 exports.getPlace = async(req, res) => {
   const userIdFromJWT = req.verifiedToken.userId
   const placeId = req.params.placeId;
-  // TODO: placeId validation
   if(!placeId) return res.send(errResponse(baseResponseStatus.PLACE_ID_EMPTY))
 
   const result = await placeProvider.getPlace(placeId, userIdFromJWT);

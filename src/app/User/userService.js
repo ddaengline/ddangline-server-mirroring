@@ -8,6 +8,7 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const userProvider = require('./userProvider');
 const userDao = require('./userDao');
+const baseResponse = require("../../../config/baseResponseStatus");
 
 
 exports.createUser = async(postParams) => {
@@ -48,6 +49,48 @@ exports.createUser = async(postParams) => {
   }
 };
 
+exports.updateUserName = async(id, name) => {
+  try {
+    const connection = await mongoose.connect(MONGO_URI, { dbName });
+    const updatedUser = await userDao.updateUserName(id, name);
+    connection.disconnect();
+    return response(baseResponseStatus.SUCCESS, updatedUser)
+  } catch(e) {
+    logger.error(`App - updateUserName Service error\n: ${err.message}`)
+    return errResponse(baseResponseStatus.DB_ERROR)
+  }
+}
+
+exports.updateUserPassword = async(id, currentPassword, newPassword) => {
+  try {
+    const connection = await mongoose.connect(MONGO_URI, { dbName });
+    const pw = await userDao.getPassword(id, currentPassword)
+    const hashedCurrentPw = await crypto.createHash('sha512').update(currentPassword).digest('hex');
+    if (pw.password !== hashedCurrentPw) return errResponse(baseResponseStatus.SIGNIN_PASSWORD_WRONG)
+    const hashedPassword = await crypto.createHash('sha512').update(newPassword).digest('hex');
+    await userDao.updateUserPassword(id, hashedPassword);
+    connection.disconnect();
+    const { isSuccess, code } = baseResponse.SUCCESS;
+    return response({ isSuccess, code, message: '비밀번호 변경 성공' })
+  } catch(e) {
+    logger.error(`App - updateUserPassword Service error\n: ${err.message}`)
+    return errResponse(baseResponseStatus.DB_ERROR)
+  }
+}
+
+exports.deleteUser = async(id) => {
+  try {
+    const connection = await mongoose.connect(MONGO_URI, { dbName });
+    await userDao.deleteUser(id);
+    connection.disconnect();
+    const { isSuccess, code } = baseResponse.SUCCESS;
+    return response({ isSuccess, code, message: '회원 탈퇴 성공' })
+  } catch(e) {
+    logger.error(`App - deleteUser Service error\n: ${err.message}`)
+    return errResponse(baseResponseStatus.DB_ERROR)
+  }
+}
+
 exports.postSignIn = async(resEmail, resPassword) => {
   try {
     // user 자체
@@ -73,7 +116,7 @@ exports.postSignIn = async(resEmail, resPassword) => {
       { subject: 'userInfo', });
     return response(baseResponseStatus.SUCCESS, { userId, jwt: token })
   } catch(err) {
-    console.log({ err });
+    logger.error(`App - postSignIn Service error\n: ${err.message}`)
     return errResponse(baseResponseStatus.DB_ERROR);
   }
 };

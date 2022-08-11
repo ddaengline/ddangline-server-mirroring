@@ -22,14 +22,6 @@ exports.getUser = async(id) => {
   return user ? response(baseResponseStatus.SUCCESS, user) : errResponse(baseResponseStatus.DB_ERROR)
 }
 
-exports.updateUserName = async(id, name) =>{
-  const connection = await mongoose.connect(MONGO_URI, { dbName });
-  connection.set('debug', true)
-  const updatedUser = await userDao.updateUserName(id, name);
-  connection.disconnect();
-  return updatedUser ? response(baseResponseStatus.SUCCESS, updatedUser) : errResponse(baseResponseStatus.DB_ERROR)
-}
-
 exports.getUserByEmail = async(email) => {
   try {
     const connection = await mongoose.connect(MONGO_URI, { dbName });
