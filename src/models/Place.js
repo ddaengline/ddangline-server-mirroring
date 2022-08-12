@@ -3,19 +3,31 @@ const { Schema, model, Types } = require('mongoose');
 const PlcaeSchema = new Schema(
   {
     name: { type: String, required: true, trim: true },
-    domain: { type: String, enum: ['음식점', '카페', '주점', '문화생활'], required: true, trim: true, default: '음식점', trim: true },
-    theme: { type: [], required: true, trim: true, trim: true },
-    station: { type: [], required: true, trim: true, trim: true },
+    domain: { type: String, enum: ['음식점', '카페', '주점', '문화공간'], required: true, trim: true, default: '음식점' },
+    theme: { type: [], required: true, trim: true },
+    station: { type: [], required: true, trim: true },
     address: { type: String, required: true, trim: true },
     walkTime: { type: Number, enum: [5, 10, 15, 20], required: true },
-    link: { type: [], trim: true, trim: true },
-    images: { type: [], trim: true, trim: true },
+    location: {
+      type: {
+        type: String,
+        enum: ['Point'],
+        required: true,
+        default: 'Point'
+      },
+      coordinates: {
+        type: [Number],
+        required: true,
+      },
+    },
+    link: { type: [], trim: true },
+    images: { type: [], trim: true },
     tips: {
       type: [
         {
           _id: { type: Types.ObjectId, required: true, ref: 'tip' },
           userId: { type: Types.ObjectId, required: true, ref: 'user' },
-          content: { type: String, requried: true, trim: true },
+          content: { type: String, required: true, trim: true },
         },
       ],
     },
@@ -28,6 +40,7 @@ const PlcaeSchema = new Schema(
   },
   { timestamps: true }
 );
+PlcaeSchema.index({ domain: 1, station: 1, walkTime: 1 })
 
 const Place = model('place', PlcaeSchema);
 module.exports = { Place };

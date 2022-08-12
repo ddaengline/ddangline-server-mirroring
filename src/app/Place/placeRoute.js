@@ -9,10 +9,18 @@ module.exports = function(app){
   // 가게 리스트 전부
   // TODO: images 없애고,
   app.get('/app/v1/places/category/:categoryId', jwtMiddleware, place.getPlaces);
-
   // 가게 상세
   // TODO: images 없애고, 위경도로
   app.get('/app/v1/places/:placeId', jwtMiddleware, place.getPlace);
+  // TODO: 가본곳, 좋아요, 마크하기
+
+  // TODO: Tip 추가
+
+  // TODO: Tip에서 사용자 신고하기
+
+  // TODO: Tip 삭제
+
+  // TODO: Tip 수정
 
   // 가게 정보 변경
   // app.patch('/admin/v1/places', place.updatePlaces)

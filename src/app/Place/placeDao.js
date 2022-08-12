@@ -16,7 +16,7 @@ async function getCategory(station, time, domain){
       return Place.aggregate()
         .match({ domain: { $in: [domain] }, walkTime: { $lte: time }, station: { $in: [station] } }) // in은 배열이여야함.
         .unwind({ path: '$theme' })
-        .group({ _id: '$theme' });
+        .group({ _id: '$theme' })
   }
 }
 
@@ -26,7 +26,10 @@ async function getPlacesInToggle(categoryId, station, time, domain){
     case 1: // home 화면
       return Place.aggregate()
         .match({ theme: { $in: [categoryId] } })
-        .project({ _id: 1, name: 1, image: { $arrayElemAt: ['$images', 0] } })
+        .project({
+          _id: 1, name: 1,
+          // image: { $arrayElemAt: ['$images', 0] }
+        })
         .limit(6);
 
     case 4: // search 화면
@@ -37,14 +40,17 @@ async function getPlacesInToggle(categoryId, station, time, domain){
           walkTime: { $lte: time },
           station: { $in: [station] }
         })
-        .project({ _id: 1, name: 1, image: { $arrayElemAt: ['$images', 0] } })
+        .project({
+          _id: 1, name: 1,
+          // image: { $arrayElemAt: ['$images', 0] }
+        })
         .limit(6);
   }
 }
 
 async function getPlaces(userId, categoryId, pageOffSet, station, time, domain){
   // TODO: 좋아요 순 sort
-  const limit = 20;
+  const limit = 10;
   const skip = limit * pageOffSet;
   switch (arguments.length) {
     // home
@@ -57,7 +63,7 @@ async function getPlaces(userId, categoryId, pageOffSet, station, time, domain){
         .project({
           _id: 1,
           name: 1,
-          images: 1,
+          // images: 1,
           station: 1,
           domain: 1,
           isLiked: { $in: [userId, '$liked'] },
@@ -80,7 +86,7 @@ async function getPlaces(userId, categoryId, pageOffSet, station, time, domain){
           _id: 1,
           name: 1,
           station: { $arrayElemAt: ['$station', 0] },
-          images: { $slice: ["$images", 2] },
+          // images: { $slice: ["$images", 2] },
           domain: 1,
           isLiked: { $in: [userId, '$liked'] },
           isMarked: { $in: [userId, '$marked'] },
@@ -90,16 +96,17 @@ async function getPlaces(userId, categoryId, pageOffSet, station, time, domain){
 }
 
 async function getPlace(placeId, userId){
-  return Place.findOne({_id: placeId}, {
+  return Place.findOne({ _id: placeId }, {
     _id: 1,
     name: 1,
     station: { $arrayElemAt: ['$station', 0] },
-    images: 1,
     domain: 1,
+    "location.coordinates": 1,
     isLiked: { $in: [userId, '$liked'] },
     isMarked: { $in: [userId, '$marked'] },
     isVisited: { $in: [userId, '$visited'] },
-    tips: 1
+    tips: 1,
+    // images: 1
   })
 }
 

@@ -6,6 +6,7 @@ const baseResponseStatus = require('../../../config/baseResponseStatus');
 
 const fs = require('fs');
 const path = require('path');
+const { json } = require("express");
 var appDir = path.dirname(require.main.filename);
 
 const readCSVPlaces = async() => {
@@ -39,7 +40,7 @@ const readCSVPlaces = async() => {
 
 const readJSONPlaces = async() => {
   try {
-    const jsonFile = fs.readFileSync(appDir + '/src/app/Place/places.json', 'utf8');
+    const jsonFile = fs.readFileSync(appDir + '/src/app/Place/finalPlaces.json', 'utf8');
     return JSON.parse(jsonFile);
   } catch(err) {
     console.log({ err });
@@ -49,7 +50,20 @@ const readJSONPlaces = async() => {
 
 exports.imoprtPlaces = async() => {
   try {
-    const result = await readJSONPlaces();
+    const jsonData = await readJSONPlaces();
+    const result = await Promise.all(jsonData.map((data) => {
+      return {
+        name: data.name,
+        station: data.station,
+        walkTime: data.walkTime,
+        address: data.address,
+        domain: data.domain,
+        theme: data.theme,
+        location: {
+          coordinates: [data.y, data.x]
+        }
+      }
+    }))
 
     const connection = await mongoose.connect(MONGO_URI, { dbName });
     connection.set('debug', true);
