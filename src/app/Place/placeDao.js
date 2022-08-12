@@ -63,7 +63,7 @@ async function getPlaces(userId, categoryId, pageOffSet, station, time, domain){
         .project({
           _id: 1,
           name: 1,
-          // images: 1,
+          images: 1,
           station: 1,
           domain: 1,
           isLiked: { $in: [userId, '$liked'] },
@@ -86,7 +86,7 @@ async function getPlaces(userId, categoryId, pageOffSet, station, time, domain){
           _id: 1,
           name: 1,
           station: { $arrayElemAt: ['$station', 0] },
-          // images: { $slice: ["$images", 2] },
+          images: { $slice: ["$images", 2] },
           domain: 1,
           isLiked: { $in: [userId, '$liked'] },
           isMarked: { $in: [userId, '$marked'] },
@@ -106,7 +106,7 @@ async function getPlace(placeId, userId){
     isMarked: { $in: [userId, '$marked'] },
     isVisited: { $in: [userId, '$visited'] },
     tips: 1,
-    // images: 1
+    images: 1
   })
 }
 
