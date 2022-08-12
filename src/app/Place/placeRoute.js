@@ -7,10 +7,8 @@ module.exports = function(app){
   // 가게 리스트 6개
   app.get('/app/v1/places/category/:categoryId/toggle', jwtMiddleware, place.getPlacesInToggle);
   // 가게 리스트 전부
-  // TODO: images 없애고,
   app.get('/app/v1/places/category/:categoryId', jwtMiddleware, place.getPlaces);
   // 가게 상세
-  // TODO: images 없애고, 위경도로
   app.get('/app/v1/places/:placeId', jwtMiddleware, place.getPlace);
   // TODO: 가본곳, 좋아요, 마크하기
 

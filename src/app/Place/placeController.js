@@ -31,9 +31,10 @@ exports.getPlacesInToggle = async(req, res) => {
 
 exports.getPlaces = async(req, res) => {
   const userIdFromJWT = req.verifiedToken.userId
-  const categoryId = req.params.categoryId;
+  const { categoryId }  = req.params;
+  console.log(categoryId.length)
   const { station, time, domain, page } = req.query;
-  if (!categoryId) return res.send(errResponse(baseResponseStatus.CATEGORY_ID_EMPTY));
+  if (!categoryId || categoryId === ":categoryId") return res.send(errResponse(baseResponseStatus.CATEGORY_ID_EMPTY));
   if (!page) return res.send(errResponse(baseResponseStatus.PAGE_FLAG_EMPTY));
   if (page < 0) return res.send(errResponse(baseResponseStatus.PAGE_FLAG_WRONG))
 
@@ -49,7 +50,8 @@ exports.getPlaces = async(req, res) => {
 exports.getPlace = async(req, res) => {
   const userIdFromJWT = req.verifiedToken.userId
   const placeId = req.params.placeId;
-  if(!placeId) return res.send(errResponse(baseResponseStatus.PLACE_ID_EMPTY))
+  console.log(placeId)
+  if(!placeId || placeId === ':placeId') return res.send(errResponse(baseResponseStatus.PLACE_ID_EMPTY))
 
   const result = await placeProvider.getPlace(placeId, userIdFromJWT);
   return res.send(result)
