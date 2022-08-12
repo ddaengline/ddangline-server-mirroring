@@ -3,6 +3,7 @@ const baseResponseStatus = require('../../../config/baseResponseStatus');
 const { response, errResponse } = require('../../../config/response');
 const { MONGO_URI, dbName } = require('../../../config/secret');
 const placeDao = require('./placeDao');
+const { logger } = require("../../../config/winston");
 
 exports.getCategory = async(searchParams) => {
   let result;
@@ -24,7 +25,7 @@ exports.getCategory = async(searchParams) => {
     result = { size: categories.length, categories };
     return response(baseResponseStatus.SUCCESS, result);
   } catch(err) {
-    console.log({ err });
+    logger.error(`App - getCategory Service error\n: ${err.message}`)
     return errResponse(baseResponseStatus.DB_ERROR);
   }
 };
@@ -46,7 +47,7 @@ exports.getPlacesInToggle = async(searchParams, categoryId) => {
     connection.disconnect();
     return response(baseResponseStatus.SUCCESS, result);
   } catch(err) {
-    console.log({ err });
+    logger.error(`App - getPlacesInToggle Service error\n: ${err.message}`)
     return errResponse(baseResponseStatus.DB_ERROR);
   }
 };
@@ -72,7 +73,7 @@ exports.getPlaces = async(userId, searchParams, categoryId, pageOffSet) => {
     connection.disconnect();
     return response(baseResponseStatus.SUCCESS, result);
   } catch(err) {
-    console.log({ err });
+    logger.error(`App - getPlaces Service error\n: ${err.message}`)
     return errResponse(baseResponseStatus.DB_ERROR);
   }
 };
@@ -85,7 +86,7 @@ exports.getPlace = async(placeId, userIdFromJWT) => {
     connection.disconnect()
     return response(baseResponseStatus.SUCCESS, result)
   } catch(err) {
-    console.log({ err })
+    logger.error(`App - getPlace Service error\n: ${err.message}`)
     return errResponse(baseResponseStatus.DB_ERROR)
   }
 }
