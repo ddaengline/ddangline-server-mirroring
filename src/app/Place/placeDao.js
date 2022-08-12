@@ -61,11 +61,9 @@ async function getPlaces(userId, categoryId, pageOffSet, station, time, domain){
         // .sort({ field: 'asc', totalLiked: -1})
         .skip(skip)
         .project({
-          _id: 1,
-          name: 1,
+          _id: 1, name: 1, domain: 1,
+          station: { $arrayElemAt: ['$station', 0] },
           images: 1,
-          station: 1,
-          domain: 1,
           isLiked: { $in: [userId, '$liked'] },
           isMarked: { $in: [userId, '$marked'] },
           isVisited: { $in: [userId, '$visited'] },
@@ -83,11 +81,9 @@ async function getPlaces(userId, categoryId, pageOffSet, station, time, domain){
         .skip(skip)
         // .sort({ field: 'asc', totalLiked: -1})
         .project({
-          _id: 1,
-          name: 1,
+          _id: 1, name: 1, domain: 1,
           station: { $arrayElemAt: ['$station', 0] },
           images: { $slice: ["$images", 2] },
-          domain: 1,
           isLiked: { $in: [userId, '$liked'] },
           isMarked: { $in: [userId, '$marked'] },
           isVisited: { $in: [userId, '$visited'] },
