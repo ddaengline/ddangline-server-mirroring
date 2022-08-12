@@ -21,7 +21,6 @@ exports.getCategory = async(searchParams) => {
       if (!domain) return errResponse(baseResponseStatus.PLACE_DOMAIN_EMPTY);
       categories = await placeDao.getCategory(station, time, domain);
     }
-    connection.disconnect();
     result = { size: categories.length, categories };
     return response(baseResponseStatus.SUCCESS, result);
   } catch(err) {
@@ -44,7 +43,6 @@ exports.getPlacesInToggle = async(searchParams, categoryId) => {
       if (!domain) return errResponse(baseResponseStatus.PLACE_DOMAIN_EMPTY);
       result = await placeDao.getPlacesInToggle(categoryId, station, time, domain);
     }
-    connection.disconnect();
     return response(baseResponseStatus.SUCCESS, result);
   } catch(err) {
     logger.error(`App - getPlacesInToggle Service error\n: ${err.message}`)
@@ -70,7 +68,6 @@ exports.getPlaces = async(userId, searchParams, categoryId, pageOffSet) => {
 
       result = await placeDao.getPlaces(userId, categoryId, pageOffSet, station, time, domain);
     }
-    connection.disconnect();
     return response(baseResponseStatus.SUCCESS, result);
   } catch(err) {
     logger.error(`App - getPlaces Service error\n: ${err.message}`)
@@ -83,7 +80,6 @@ exports.getPlace = async(placeId, userIdFromJWT) => {
   try {
     const connection = await mongoose.connect(MONGO_URI, { dbName })
     const result = await placeDao.getPlace(placeId, userIdFromJWT)
-    connection.disconnect()
     return response(baseResponseStatus.SUCCESS, result)
   } catch(err) {
     logger.error(`App - getPlace Service error\n: ${err.message}`)
