@@ -42,10 +42,9 @@ async function deleteUser(id){
   }),
     Collection.deleteMany({ userId: id }), Place.updateMany({},
       {
-        $pull: { "liked.$[user]": id, "marked.$[user]": id, "visited.$[user]": id },
-        $inc: { liked: -1, marked: -1, visited: -1 }
+        $pull: { "liked.$[user]": id, "marked.$[user]": id, "visited.$[user]": id }
       },
-      { arrayFilters: [{ "user": id }] })])
+      { arrayFilters: [{ user: id }] })])
   return deletedUser
 }
 

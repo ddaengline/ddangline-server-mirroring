@@ -19,15 +19,13 @@ exports.postUser = async(req, res) => {
 };
 
 exports.getUsers = async(req, res) => {
-  const userList = await userProvider.getUsers(userIdFromJWT);
+  const userList = await userProvider.getUsers();
   return res.send(userList);
 };
 
 exports.getUser = async(req, res) => {
-  const { userId } = req.params;
   const userIdFromJWT = req.verifiedToken.userId
-  if (!mongoose.isValidObjectId(userId)) return res.send(errResponse(baseResponseStatus.USER_ID_NOT_MATCH))
-  if (userId !== userIdFromJWT) return res.send(errResponse(baseResponseStatus.USER_USERID_JWT_WRONG))
+  if (!mongoose.isValidObjectId(userIdFromJWT)) return res.send(errResponse(baseResponseStatus.USER_ID_NOT_MATCH))
   const user = await userProvider.getUser(userIdFromJWT)
   return res.send(user)
 }

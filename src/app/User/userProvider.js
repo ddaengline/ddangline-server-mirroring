@@ -17,6 +17,7 @@ exports.getUsers = async() => {
 
 exports.getUser = async(id) => {
   const connection = await mongoose.connect(MONGO_URI, { dbName });
+  connection.set('debug', true)
   const user = await userDao.getUser(id);
   connection.disconnect();
   return user ? response(baseResponseStatus.SUCCESS, user) : errResponse(baseResponseStatus.DB_ERROR)
