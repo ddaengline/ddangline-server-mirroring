@@ -23,6 +23,10 @@ async function pushPlaceToCollection(collectionId, placeId){
   return Collection.updateOne({ _id: collectionId }, { $push: { places: placeId }, $inc: { total: 1 } })
 }
 
+async function pushPlaceToMarked(userId, placeId){
+  return Collection.updateOne({ userId, type: "MARKED" }, { $push: { places: placeId }, $inc: { total: 1 } })
+}
+
 async function updateCollectionName(collectionId, name){
   return Collection.findByIdAndUpdate(collectionId, { $set: { name: name } }, { new: true })
 }
@@ -67,35 +71,49 @@ async function getUserName(userId){
   return User.findById(userId, { username: 1, _id: 0 })
 }
 
-async function getCollection(userId, collectionId){
-  return Collection.aggregate()
-    .match({ _id: ObjectId(collectionId) }).limit(1)
-    .lookup({ from: "places", localField: "places", foreignField: "_id", as: "places" })
-    .project({
-        _id: 1, name: 1, domain: 1, total: 1, type: 1,
-        places: {
-          $map: {
-            input: "$places", as: "place",
-            in: {
-              _id: "$$place._id", name: "$$place.name",
-              station: { $arrayElemAt: ["$$place.station", 0] },
-              images: { $slice: ["$$place.images", 1] },
-              isLiked: { $in: [userId, '$$place.liked'] },
-              isMarked: { $in: [userId, '$$place.marked'] },
-              isVisited: { $in: [userId, '$$place.visited'] },
+async function getCollection(collectionId, userId){
+  switch (arguments.length) {
+    case 1:
+      return Collection.findById(collectionId)
+    case 2:
+      return Collection.aggregate()
+        .match({ _id: ObjectId(collectionId) }).limit(1)
+        .lookup({ from: "places", localField: "places", foreignField: "_id", as: "places" })
+        .project({
+            _id: 1, name: 1, domain: 1, total: 1, type: 1,
+            places: {
+              $map: {
+                input: "$places", as: "place",
+                in: {
+                  _id: "$$place._id", name: "$$place.name",
+                  station: { $arrayElemAt: ["$$place.station", 0] },
+                  images: { $slice: ["$$place.images", 1] },
+                  isLiked: { $in: [userId, '$$place.liked'] },
+                  isMarked: { $in: [userId, '$$place.marked'] },
+                  isVisited: { $in: [userId, '$$place.visited'] },
+                }
+              }
             }
           }
-        }
-      }
-    )
+        )
+  }
+
 }
 
 async function getPlaceInCollection(collectionId, placeId){
   return Collection.findOne({ _id: collectionId, places: placeId })
 }
 
+async function getPlaceInMarked(userId, placeId){
+  return Collection.findOne({ userId, type: "MARKED", places: placeId })
+}
+
 async function deletePlaceInCollection(collectionId, placeId){
   return Collection.updateOne({ _id: collectionId }, { $pull: { places: placeId }, $inc: { total: -1 } })
+}
+
+async function deletePlaceInMarked(userId, placeId){
+  return Collection.updateOne({ userId, type: "MARKED" }, { $pull: { places: placeId }, $inc: { total: -1 } })
 }
 
 async function deleteCollection(collectionId){
@@ -107,8 +125,8 @@ module.exports = {
   getCollections, getCollectionsLastOrder, getCollectionsToSave,
   getUserName,
   getCollection,
-  pushPlaceToCollection,
+  pushPlaceToCollection, pushPlaceToMarked,
   updateCollectionName, updateCollectionOrder, updatePlaceLiked,
-  getPlaceInCollection,
-  deletePlaceInCollection, deleteCollection
+  getPlaceInCollection, getPlaceInMarked,
+  deletePlaceInMarked, deletePlaceInCollection, deleteCollection
 }

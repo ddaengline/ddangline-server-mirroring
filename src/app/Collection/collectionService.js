@@ -24,13 +24,15 @@ exports.createCollection = async(userId, name) => {
   }
 }
 
-exports.pushPlace = async(collectionId, placeId) => {
+exports.pushPlace = async(userId, collectionId, placeId) => {
   try {
     await mongoose.connect(MONGO_URI, { dbName });
-    const [collection, isPlaced] = await Promise.all([collectionDao.getCollection(collectionId), collectionDao.getPlaceInCollection(collectionId, placeId)])
+    const [collection, isPlaced, isMarked] = await Promise.all([collectionDao.getCollection(collectionId),
+      collectionDao.getPlaceInCollection(collectionId, placeId), collectionDao.getPlaceInMarked(userId, placeId)])
     if (!collection) return errResponse(baseResponseStatus.COLLECTION_NOT_EXIST)
     if (isPlaced) return errResponse(baseResponseStatus.PLACE_ALREADY_EXIST_IN_COLLECTION)
-    const pushed = await collectionDao.pushPlaceToCollection(collectionId, placeId)
+    if (collection.type === "USER" && !isMarked) await Promise.all([collectionDao.pushPlaceToCollection(collectionId, placeId), collectionDao.pushPlaceToMarked(userId, placeId)])
+    else await collectionDao.pushPlaceToCollection(collectionId, placeId)
     const { isSuccess, code } = baseResponse.SUCCESS;
     return response({ isSuccess, code, message: "장소 추가 성공" })
   } catch(err) {
@@ -39,13 +41,16 @@ exports.pushPlace = async(collectionId, placeId) => {
   }
 }
 
-exports.deletePlaceInCollection = async(collectionId, placeId) => {
+exports.deletePlaceInCollection = async(userId, collectionId, placeId) => {
   try {
+    // TODO: 수납장에서 제거할 때, marked한 거에서도 제거해야함.
     await mongoose.connect(MONGO_URI, { dbName });
-    const [collection, isPlaced] = await Promise.all([collectionDao.getCollection(collectionId), collectionDao.getPlaceInCollection(collectionId, placeId)])
+    const [collection, isPlaced, isMarked] = await Promise.all([collectionDao.getCollection(collectionId),
+      collectionDao.getPlaceInCollection(collectionId, placeId), collectionDao.getPlaceInMarked(userId, placeId)])
     if (!collection) return errResponse(baseResponseStatus.COLLECTION_NOT_EXIST)
     if (!isPlaced) return errResponse(baseResponseStatus.PLACE_ALREADY_NOT_EXIST_IN_COLLECTION)
-    const deleted = await collectionDao.deletePlaceInCollection(collectionId, placeId)
+    if (collection.type === "USER" && isMarked) await Promise.all([collectionDao.deletePlaceInCollection(collectionId, placeId), collectionDao.deletePlaceInMarked(userId, placeId)])
+    else await collectionDao.deletePlaceInCollection(collectionId, placeId)
     const { isSuccess, code } = baseResponse.SUCCESS;
     return response({ isSuccess, code, message: "장소 제거 성공" })
   } catch(err) {

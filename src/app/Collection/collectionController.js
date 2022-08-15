@@ -15,6 +15,7 @@ exports.postCollection = async(req, res) => {
 }
 
 exports.postPlace = async(req, res) => {
+  const userIdFromJWT = req.verifiedToken.userId
   const collectionId = req.params.collectionId;
   const { placeId } = req.body
   if (!placeId) return res.send(errResponse(baseResponseStatus.PLACE_ID_EMPTY))
@@ -23,7 +24,7 @@ exports.postPlace = async(req, res) => {
   if (!collection || collection === ':collectionId') return res.send(errResponse(baseResponseStatus.COLLECTION_ID_EMPTY))
   if (!mongoose.isValidObjectId(collection)) return res.send(errResponse(baseResponseStatus.COLLECTION_ID_WRONG))
   if (!placeId || placeId.length < 1) return res.send(errResponse(baseResponseStatus.PLACE_ID_EMPTY))
-  const pushPlaceRes = await collectionService.pushPlace(collection, placeId.trim())
+  const pushPlaceRes = await collectionService.pushPlace(userIdFromJWT, collection, placeId.trim())
   return res.send(pushPlaceRes)
 }
 
@@ -63,6 +64,7 @@ exports.updateCollectionName = async(req, res) => {
 }
 
 exports.deletePlaceInCollection = async(req, res) => {
+  const userIdFromJWT = req.verifiedToken.userId
   const { collectionId, placeId } = req.params
   const collection = collectionId.trim()
   const place = placeId.trim()
@@ -70,7 +72,7 @@ exports.deletePlaceInCollection = async(req, res) => {
   if (!mongoose.isValidObjectId(collection)) return res.send(errResponse(baseResponseStatus.COLLECTION_ID_WRONG))
   if (!place || place === ':placeId') return res.send(errResponse(baseResponseStatus.PLACE_ID_EMPTY))
   if (!mongoose.isValidObjectId(place)) return res.send(errResponse(baseResponseStatus.PLACE_ID_WRONG))
-  const deletePlaceRes = await collectionService.deletePlaceInCollection(collection, place)
+  const deletePlaceRes = await collectionService.deletePlaceInCollection(userIdFromJWT, collection, place)
   return res.send(deletePlaceRes)
 }
 
