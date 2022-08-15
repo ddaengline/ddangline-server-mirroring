@@ -70,8 +70,8 @@ exports.patchCollectionName = async(collectionId, name) => {
   try {
     await mongoose.connect(MONGO_URI, { dbName });
     const collection = await collectionDao.updateCollectionName(collectionId, name)
+    if(!collection) return errResponse(baseResponseStatus.COLLECTION_NOT_EXIST)
     const updated = { updatedName: collection.name }
-    if (!collection) return errResponse(baseResponseStatus.COLLECTION_NOT_EXIST)
     return response(baseResponseStatus.SUCCESS, updated)
   } catch(err) {
     logger.error(`App - patchCollectionName Service error\n: ${err.message}`)
