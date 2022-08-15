@@ -31,7 +31,7 @@ exports.getPlacesInToggle = async(req, res) => {
 
 exports.getPlaces = async(req, res) => {
   const userIdFromJWT = req.verifiedToken.userId
-  const { categoryId }  = req.params;
+  const { categoryId } = req.params;
   console.log(categoryId.length)
   const { station, time, domain, page } = req.query;
   if (!categoryId || categoryId === ":categoryId") return res.send(errResponse(baseResponseStatus.CATEGORY_ID_EMPTY));
@@ -51,8 +51,7 @@ exports.getPlace = async(req, res) => {
   const userIdFromJWT = req.verifiedToken.userId
   const placeId = req.params.placeId;
   console.log(placeId)
-  if(!placeId || placeId === ':placeId') return res.send(errResponse(baseResponseStatus.PLACE_ID_EMPTY))
-
+  if (!placeId || placeId === ':placeId') return res.send(errResponse(baseResponseStatus.PLACE_ID_EMPTY))
   const result = await placeProvider.getPlace(placeId, userIdFromJWT);
   return res.send(result)
 }
@@ -73,3 +72,17 @@ exports.updatePlaces = async(req, res) => {
   const updatedPlaces = await placeService.updatePlaces();
   return res.send(updatedPlaces);
 };
+
+// 좋아요, 싫어요, 갔다옴
+exports.updateMyPlace = async(req, res) => {
+  const { liked, marked, visited } = req.body
+  const userIdFromJWT = req.verifiedToken.userId
+  const placeId = req.params.placeId;
+  let updatedParams = {}
+  if (liked) updatedParams['liked'] = 1
+  if (marked) updatedParams['marked'] = 1
+  if (visited) updatedParams['visited'] = 1
+  if (!placeId || placeId === ':placeId') return res.send(errResponse(baseResponseStatus.PLACE_ID_EMPTY))
+  const updatePlaceRes = await placeService.updateMyPlace(userIdFromJWT, placeId, updatedParams)
+  return res.send(updatePlaceRes)
+}

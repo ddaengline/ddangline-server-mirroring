@@ -12,7 +12,9 @@ exports.createCollection = async(userId, name) => {
     const connection = await mongoose.connect(MONGO_URI, { dbName, autoIndex: true });
     let [createCollectionRes, last] = await Promise.all([collectionDao.createCollection(userId, name), collectionDao.getCollectionsLastOrder(userId)])
     if (last) createCollectionRes = await collectionDao.updateCollectionOrder(createCollectionRes._id, last.order + 1)
-    else await collectionDao.createCollection(userId)
+    else {
+      await Promise.all([collectionDao.createCollection(userId), collectionDao.updateCollectionOrder(createCollectionRes._id, 1)])
+    }
     const result = { _id: createCollectionRes._id }
     connection.disconnect()
     return response(baseResponseStatus.SUCCESS, result)

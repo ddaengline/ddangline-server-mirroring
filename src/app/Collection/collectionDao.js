@@ -6,7 +6,7 @@ const { User } = require('../../models/User')
 async function createCollection(userId, name){
   switch (arguments.length) {
     case 1: // default
-      return Collection.insertMany([{ userId, name: "liked" }, { userId, name: "marked" }, { userId, name: "visited" }])
+      return Collection.insertMany([{ userId, name: "liked", type: "LIKED" }, { userId, name: "marked", type: "MARKED" }, { userId, name: "visited", type: "VISITED" }])
     case 2:
       const collection = new Collection({ name, userId })
       return collection.save()
@@ -28,7 +28,7 @@ async function updateCollectionOrder(collectionId, order){
 }
 
 async function getCollections(userId){
-  return Collection.find({ userId }, { _id: 1, name: 1, total: 1, order: 1 }).sort({ order: 1 })
+  return Collection.find({ userId }, { _id: 1, name: 1, type: 1, total: 1, order: 1 }).sort({ order: 1 })
 }
 
 async function getCollection(userId, collectionId){
@@ -36,7 +36,7 @@ async function getCollection(userId, collectionId){
     .match({ _id: ObjectId(collectionId) }).limit(1)
     .lookup({ from: "places", localField: "places", foreignField: "_id", as: "places" })
     .project({
-        _id: 1, name: 1, domain: 1, total: 1,
+        _id: 1, name: 1, domain: 1, total: 1, type: 1,
         places: {
           $map: {
             input: "$places", as: "place",

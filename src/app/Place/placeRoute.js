@@ -11,7 +11,7 @@ module.exports = function(app){
   // 가게 상세
   app.get('/app/v1/places/:placeId', jwtMiddleware, place.getPlace);
   // TODO: 가본곳, 좋아요, 마크하기
-
+  app.patch('/app/v1/places/:placeId', jwtMiddleware, place.updateMyPlace)
   // TODO: Tip 추가
 
   // TODO: Tip에서 사용자 신고하기

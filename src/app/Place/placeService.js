@@ -1,13 +1,14 @@
 const mongoose = require('mongoose');
 const { MONGO_URI, dbName } = require('../../../config/secret');
-const placeDao = require('./placeDao');
 const { response, errResponse } = require('../../../config/response');
 const baseResponseStatus = require('../../../config/baseResponseStatus');
-
 const fs = require('fs');
 const path = require('path');
 const { json } = require("express");
+const { logger } = require("../../../config/winston");
 var appDir = path.dirname(require.main.filename);
+const placeDao = require('./placeDao');
+const collectionDao = require('../Collection/collectionDao')
 
 const readCSVPlaces = async() => {
   try {
@@ -40,7 +41,7 @@ const readCSVPlaces = async() => {
 
 const readJSONPlaces = async() => {
   try {
-    const jsonFile = fs.readFileSync(appDir + '/src/app/Place/finalPlaces.json', 'utf8');
+    const jsonFile = fs.readFileSync(appDir + '/src/app/Place/final.json', 'utf8');
     return JSON.parse(jsonFile);
   } catch(err) {
     console.log({ err });
@@ -85,10 +86,20 @@ exports.updatePlaces = async() => {
     const result = await placeDao.updateDefault();
     return response(baseResponseStatus.SUCCESS, result);
   } catch(err) {
-    console.log({ err });
+
     return errResponse(baseResponseStatus.DB_ERROR);
   }
 };
+
+exports.updateMyPlace = async (userId, placeId, params) => {
+  try{
+    // TODO: places 배열 업데이트, total 필드 없데이트, Collection 배열 업데이트
+  } catch(err){
+    logger.error(`App - updateMyPlace Service error\n: ${err.message}`)
+    return errResponse(baseResponseStatus.DB_ERROR);
+  }
+}
+
 
 // 장소 추가
 // TODO : 2차 배포때

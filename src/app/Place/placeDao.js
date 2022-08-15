@@ -10,13 +10,15 @@ async function getCategory(station, time, domain){
         .unwind({ path: '$theme' })
         .group({ _id: '$theme', count: { $sum: 1 } })
         .sort({ field: 'asc', count: -1 })
-        .project({ _id: 1 });
+        .project({ _id: 1, count: 1});
 
     case 3: // search 화면
       return Place.aggregate()
         .match({ domain: { $in: [domain] }, walkTime: { $lte: time }, station: { $in: [station] } }) // in은 배열이여야함.
         .unwind({ path: '$theme' })
-        .group({ _id: '$theme' })
+        .group({ _id: '$theme', count: { $sum: 1 } })
+        .sort({ field: 'asc', count: -1 })
+        .project({ _id: 1})
   }
 }
 
