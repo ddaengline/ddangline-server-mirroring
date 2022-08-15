@@ -3,10 +3,10 @@ const { Collection } = require('../../models/Collection')
 const { Place } = require('../../models/Place')
 
 // 유저 생성
+// TODO: defulat 수납장 생성하기
 async function createUser(insertUserInfoParams){
   const user = new User(insertUserInfoParams);
-  const re = await user.save();
-  return re;
+  return user.save();
 }
 
 async function getUsers(){

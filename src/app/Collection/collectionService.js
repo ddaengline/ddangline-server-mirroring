@@ -12,11 +12,11 @@ exports.createCollection = async(userId, name) => {
     const connection = await mongoose.connect(MONGO_URI, { dbName, autoIndex: true });
     let [createCollectionRes, last] = await Promise.all([collectionDao.createCollection(userId, name), collectionDao.getCollectionsLastOrder(userId)])
     if (last) createCollectionRes = await collectionDao.updateCollectionOrder(createCollectionRes._id, last.order + 1)
+    else await collectionDao.createCollection(userId)
     const result = { _id: createCollectionRes._id }
     connection.disconnect()
     return response(baseResponseStatus.SUCCESS, result)
   } catch(err) {
-    console.log({ err })
     logger.error(`App - createCollection Service error\n: ${err.message}`)
     return errResponse(baseResponseStatus.DB_ERROR)
   }
@@ -61,7 +61,7 @@ exports.deleteCollection = async(collectionId) => {
     const { isSuccess, code } = baseResponse.SUCCESS;
     return response({ isSuccess, code, message })
   } catch(err) {
-    console.log({ err })
+    logger.error(`App - deleteCollection Service error\n: ${err.message}`)
     return errResponse(baseResponseStatus.DB_ERROR)
   }
 }
@@ -70,7 +70,7 @@ exports.patchCollectionName = async(collectionId, name) => {
   try {
     await mongoose.connect(MONGO_URI, { dbName });
     const collection = await collectionDao.updateCollectionName(collectionId, name)
-    if(!collection) return errResponse(baseResponseStatus.COLLECTION_NOT_EXIST)
+    if (!collection) return errResponse(baseResponseStatus.COLLECTION_NOT_EXIST)
     const updated = { updatedName: collection.name }
     return response(baseResponseStatus.SUCCESS, updated)
   } catch(err) {

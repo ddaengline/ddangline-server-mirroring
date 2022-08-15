@@ -20,15 +20,14 @@ exports.getCollections = async(userId) => {
 }
 
 // 특정 수납장
-exports.getCollection = async (collectionId) => {
-  try{
+exports.getCollection = async(userIdFromJWT, collectionId) => {
+  try {
     const connection = await mongoose.connect(MONGO_URI, { dbName });
-    const res = await collectionDao.getCollection(collectionId)
+    const [res] = await collectionDao.getCollection(userIdFromJWT, collectionId)
     if (!res) return errResponse(baseResponseStatus.COLLECTION_NOT_EXIST)
-    console.log({ res })
     connection.disconnect()
     return response(baseResponseStatus.SUCCESS, res)
-  } catch(err){
+  } catch(err) {
     console.log({ err })
     logger.error(`App - pushPlace Service error\n: ${err.message}`)
     return errResponse(baseResponseStatus.DB_ERROR)

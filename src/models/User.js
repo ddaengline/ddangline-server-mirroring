@@ -10,12 +10,6 @@ const UserSchema = new Schema(
     },
     password: { type: String, required: true, trim: true },
     status: { type: String, required: true, enum: ['ACTIVE', 'SLEEP', 'WITHDRAWAL'], default: 'ACTIVE' },
-    totalLiked: { type: Number, default: 0 },
-    liked: { type: [Types.ObjectId], ref: 'place' },
-    totalMarked: { type: Number, default: 0 },
-    marked: { type: [Types.ObjectId], ref: 'place' },
-    totalVisited: { type: Number, default: 0 },
-    visited: { type: [Types.ObjectId], ref: 'place' },
   },
   { timestamps: true }
 );

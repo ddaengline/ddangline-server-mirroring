@@ -1,9 +1,16 @@
+const mongoose = require('mongoose')
+const ObjectId = mongoose.Types.ObjectId
 const { Collection } = require('../../models/Collection')
 const { User } = require('../../models/User')
 
 async function createCollection(userId, name){
-  const collection = new Collection({ name, userId })
-  return collection.save()
+  switch (arguments.length) {
+    case 1: // default
+      return Collection.insertMany([{ userId, name: "liked" }, { userId, name: "marked" }, { userId, name: "visited" }])
+    case 2:
+      const collection = new Collection({ name, userId })
+      return collection.save()
+  }
 }
 
 // 특정 수납장 > 특정 가게 추가
@@ -24,16 +31,35 @@ async function getCollections(userId){
   return Collection.find({ userId }, { _id: 1, name: 1, total: 1, order: 1 }).sort({ order: 1 })
 }
 
+async function getCollection(userId, collectionId){
+  return Collection.aggregate()
+    .match({ _id: ObjectId(collectionId) }).limit(1)
+    .lookup({ from: "places", localField: "places", foreignField: "_id", as: "places" })
+    .project({
+        _id: 1, name: 1, domain: 1, total: 1,
+        places: {
+          $map: {
+            input: "$places", as: "place",
+            in: {
+              _id: "$$place._id", name: "$$place.name",
+              station: { $arrayElemAt: ["$$place.station", 0] },
+              images: { $slice: ["$$place.images", 1] },
+              isLiked: { $in: [userId, '$$place.liked'] },
+              isMarked: { $in: [userId, '$$place.marked'] },
+              isVisited: { $in: [userId, '$$place.visited'] },
+            }
+          }
+        }
+      }
+    )
+}
+
 async function getCollectionsLastOrder(userId){
-  return Collection.findOne({ userId }, {order : 1}).sort({ order: -1 }).limit(1)
+  return Collection.findOne({ userId }, { order: 1 }).sort({ order: -1 }).limit(1)
 }
 
 async function getUserName(userId){
   return User.findById(userId, { username: 1, _id: 0 })
-}
-
-async function getCollection(collectionId){
-  return Collection.findById(collectionId, { _id: 1, name: 1, total: 1, places: 1 }).populate([{ path: "places", select: "_id name station"}])
 }
 
 async function getPlaceInCollection(collectionId, placeId){

@@ -8,7 +8,7 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const userProvider = require('./userProvider');
 const userDao = require('./userDao');
-const baseResponse = require("../../../config/baseResponseStatus");
+const collectionDao =require('../Collection/collectionDao')
 
 
 exports.createUser = async(postParams) => {
@@ -33,16 +33,16 @@ exports.createUser = async(postParams) => {
 
     const connection = await mongoose.connect(MONGO_URI, { dbName });
     const userIdResult = await userDao.createUser(insertUserInfoParams);
+    const userId = userIdResult._id;
+    await collectionDao.createCollection(userId)
     connection.disconnect();
-
     // access token 생성
     let token = await jwt.sign(
-      { userId: userIdResult._id, },
+      { userId: userId, },
       jwtsecret,
       // 유효기간 3시간
       { subject: 'userInfo', });
-
-    return response(baseResponseStatus.SUCCESS, { userId: userIdResult._id, jwt: token });
+    return response(baseResponseStatus.SUCCESS, { userId, jwt: token });
   } catch(err) {
     logger.error(`App - createUser Service error\n: ${err.message}`)
     return errResponse(baseResponseStatus.DB_ERROR);
@@ -72,7 +72,7 @@ exports.updateUserPassword = async(id, currentPassword, newPassword) => {
     const hashedPassword = await crypto.createHash('sha512').update(newPassword).digest('hex');
     await userDao.updateUserPassword(id, hashedPassword);
     connection.disconnect();
-    const { isSuccess, code } = baseResponse.SUCCESS;
+    const { isSuccess, code } = baseResponseStatus.SUCCESS;
     return response({ isSuccess, code, message: '비밀번호 변경 성공' })
   } catch(e) {
     logger.error(`App - updateUserPassword Service error\n: ${err.message}`)
@@ -85,7 +85,7 @@ exports.deleteUser = async(id) => {
     const connection = await mongoose.connect(MONGO_URI, { dbName });
     await userDao.deleteUser(id);
     connection.disconnect();
-    const { isSuccess, code } = baseResponse.SUCCESS;
+    const { isSuccess, code } = baseResponseStatus.SUCCESS;
     return response({ isSuccess, code, message: '회원 탈퇴 성공' })
   } catch(e) {
     console.log({e})
