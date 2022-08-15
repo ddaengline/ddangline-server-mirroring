@@ -3,8 +3,8 @@ const { Schema, model, Types } = require('mongoose');
 const TipSchema = new Schema(
   {
     userId: { type: Types.ObjectId, required: true, ref: 'user' },
-    plcaeId: { type: Types.ObjectId, required: true, ref: 'place' },
-    content: { type: String, requried: true, trim: true },
+    placeId: { type: Types.ObjectId, required: true, ref: 'place' },
+    content: { type: String, required: true, trim: true },
   },
   { timestamps: true }
 );

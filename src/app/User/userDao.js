@@ -35,6 +35,7 @@ async function updateUserPassword(id, pw){
 
 async function deleteUser(id){
   // TODO: 유저 상태 변경'WITHDRAWAL', 유저 수납장 삭제, 가게 좋아요/싫어요/갔다옴 pull
+  // TODO : set totalNumber
   const[deletedUser] = await Promise.all([User.findOneAndUpdate({ _id: id }, { status: 'WITHDRAWAL' }, {
     runValidators: true,
     new: true,
@@ -42,7 +43,7 @@ async function deleteUser(id){
   }),
     Collection.deleteMany({ userId: id }), Place.updateMany({},
       {
-        $pull: { "liked.$[user]": id, "marked.$[user]": id, "visited.$[user]": id }
+        $pull: { "liked.$[user]": id,"marked.$[user]": id, "visited.$[user]": id }
       },
       { arrayFilters: [{ user: id }] })])
   return deletedUser
