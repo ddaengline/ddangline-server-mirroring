@@ -33,7 +33,7 @@ async function getUserName(userId){
 }
 
 async function getCollection(collectionId){
-  return Collection.findById(collectionId, { _id: 1, name: 1, total: 1, places: 1 })
+  return Collection.findById(collectionId, { _id: 1, name: 1, total: 1, places: 1 }).populate([{ path: "places", select: "_id name station"}])
 }
 
 async function getPlaceInCollection(collectionId, placeId){

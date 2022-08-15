@@ -25,6 +25,7 @@ exports.getCollection = async (collectionId) => {
     const connection = await mongoose.connect(MONGO_URI, { dbName });
     const res = await collectionDao.getCollection(collectionId)
     if (!res) return errResponse(baseResponseStatus.COLLECTION_NOT_EXIST)
+    console.log({ res })
     connection.disconnect()
     return response(baseResponseStatus.SUCCESS, res)
   } catch(err){
