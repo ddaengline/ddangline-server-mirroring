@@ -10,7 +10,7 @@ async function getCategory(station, time, domain){
         .unwind({ path: '$theme' })
         .group({ _id: '$theme', count: { $sum: 1 } })
         .sort({ field: 'asc', count: -1 })
-        .project({ _id: 1, count: 1});
+        .project({ _id: 1, count: 1 });
 
     case 3: // search 화면
       return Place.aggregate()
@@ -18,16 +18,16 @@ async function getCategory(station, time, domain){
         .unwind({ path: '$theme' })
         .group({ _id: '$theme', count: { $sum: 1 } })
         .sort({ field: 'asc', count: -1 })
-        .project({ _id: 1})
+        .project({ _id: 1 })
   }
 }
 
 // 카테고리 안 가게 6개
-async function getPlacesInToggle(categoryId, station, time, domain){
+async function getPlacesInToggle(categoryName, station, time, domain){
   switch (arguments.length) {
     case 1: // home 화면
       return Place.aggregate()
-        .match({ theme: { $in: [categoryId] } })
+        .match({ theme: { $in: [categoryName] } })
         .project({
           _id: 1, name: 1,
           // image: { $arrayElemAt: ['$images', 0] }
@@ -37,7 +37,7 @@ async function getPlacesInToggle(categoryId, station, time, domain){
     case 4: // search 화면
       return Place.aggregate()
         .match({
-          theme: { $in: [categoryId] },
+          theme: { $in: [categoryName] },
           domain: { $in: [domain] },
           walkTime: { $lte: time },
           station: { $in: [station] }
@@ -66,9 +66,9 @@ async function getPlaces(userId, categoryId, pageOffSet, station, time, domain){
           _id: 1, name: 1, domain: 1,
           station: { $arrayElemAt: ['$station', 0] },
           images: 1,
-          isLiked: { $in: [userId, '$lik:Wqed'] },
-          isMarked: { $in: [userId, '$marked'] },
-          isVisited: { $in: [userId, '$visited'] },
+          isLiked: { $in: [ObjectId(userId), '$liked'] },
+          isMarked: { $in: [ObjectId(userId), '$marked'] },
+          isVisited: { $in: [ObjectId(userId), '$visited'] },
         });
     case 6:
       // search
@@ -86,9 +86,9 @@ async function getPlaces(userId, categoryId, pageOffSet, station, time, domain){
           _id: 1, name: 1, domain: 1,
           station: { $arrayElemAt: ['$station', 0] },
           images: { $slice: ["$images", 2] },
-          isLiked: { $in: [userId, '$liked'] },
-          isMarked: { $in: [userId, '$marked'] },
-          isVisited: { $in: [userId, '$visited'] },
+          isLiked: { $in: [ObjectId(userId), '$liked'] },
+          isMarked: { $in: [ObjectId(userId), '$marked'] },
+          isVisited: { $in: [ObjectId(userId), '$visited'] },
         });
   }
 }
@@ -100,9 +100,9 @@ async function getPlace(placeId, userId){
     station: { $arrayElemAt: ['$station', 0] },
     domain: 1,
     "location.coordinates": 1,
-    isLiked: { $in: [userId, '$liked'] },
-    isMarked: { $in: [userId, '$marked'] },
-    isVisited: { $in: [userId, '$visited'] },
+    isLiked: { $in: [ObjectId(userId), '$liked'] },
+    isMarked: { $in: [ObjectId(userId), '$marked'] },
+    isVisited: { $in: [ObjectId(userId), '$visited'] },
     tips: 1,
     images: 1
   })
@@ -134,6 +134,15 @@ async function updateDefault(){
   return Place.updateMany({}, { $set: { totalLiked: 0, totalMarked: 0, totalVisited: 0 } });
 }
 
+async function updatePlaceLiked(placeId, userId, liked){
+  if (liked === 1) return Place.findByIdAndUpdate(placeId, { $push: { liked: ObjectId(userId) }, $inc: { totalLiked: 1 } })
+  else return Place.findByIdAndUpdate(placeId, { $pull: { liked: ObjectId(userId) }, $inc: { totalLiked: -1 } })
+}
+
+async function isLiked(placeId, userId){
+  return Place.aggregate().match({ $expr: { $in: [ObjectId(userId), "$liked"] }, _id: ObjectId(placeId) })
+}
+
 module.exports = {
   getCategory,
   getPlaces,
@@ -141,5 +150,6 @@ module.exports = {
   createPlace,
   createMany,
   getPlacesInToggle,
-  updateDefault
+  updateDefault,
+  updatePlaceLiked, isLiked
 };

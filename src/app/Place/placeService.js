@@ -9,6 +9,7 @@ const { logger } = require("../../../config/winston");
 var appDir = path.dirname(require.main.filename);
 const placeDao = require('./placeDao');
 const collectionDao = require('../Collection/collectionDao')
+const baseResponse = require("../../../config/baseResponseStatus");
 
 const readCSVPlaces = async() => {
   try {
@@ -70,7 +71,6 @@ exports.imoprtPlaces = async() => {
     connection.set('debug', true);
     const createdPlaces = await placeDao.createMany(result);
     connection.disconnect();
-
     return response(baseResponseStatus.SUCCESS, createdPlaces);
   } catch(err) {
     console.log({ err });
@@ -91,15 +91,20 @@ exports.updatePlaces = async() => {
   }
 };
 
-exports.updateMyPlace = async (userId, placeId, params) => {
-  try{
-    // TODO: places 배열 업데이트, total 필드 없데이트, Collection 배열 업데이트
-  } catch(err){
-    logger.error(`App - updateMyPlace Service error\n: ${err.message}`)
+exports.updatePlaceLiked = async(userId, placeId, liked) => {
+  try {
+    const connection = await mongoose.connect(MONGO_URI, { dbName });
+    mongoose.set('debug', true);
+    const [isLiked] = await placeDao.isLiked(placeId, userId)
+    // 광클 방지
+    if ((isLiked && liked === 1) || (!isLiked && liked === -1)) return response(baseResponseStatus.SUCCESS)
+    await Promise.all([placeDao.updatePlaceLiked(placeId, userId, liked), collectionDao.updatePlaceLiked(userId, placeId, liked)])
+    return response(baseResponseStatus.SUCCESS);
+  } catch(err) {
+    logger.error(`App - updatePlaceLiked Service error\n: ${err.message}`)
     return errResponse(baseResponseStatus.DB_ERROR);
   }
 }
-
 
 // 장소 추가
 // TODO : 2차 배포때

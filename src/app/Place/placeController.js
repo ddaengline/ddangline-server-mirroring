@@ -74,15 +74,15 @@ exports.updatePlaces = async(req, res) => {
 };
 
 // 좋아요, 싫어요, 갔다옴
-exports.updateMyPlace = async(req, res) => {
-  const { liked, marked, visited } = req.body
+exports.updatePlaceLiked = async(req, res) => {
+  const { liked } = req.body
+  // -1, 1 둘 중 하나여야함.
   const userIdFromJWT = req.verifiedToken.userId
   const placeId = req.params.placeId;
-  let updatedParams = {}
-  if (liked) updatedParams['liked'] = 1
-  if (marked) updatedParams['marked'] = 1
-  if (visited) updatedParams['visited'] = 1
   if (!placeId || placeId === ':placeId') return res.send(errResponse(baseResponseStatus.PLACE_ID_EMPTY))
-  const updatePlaceRes = await placeService.updateMyPlace(userIdFromJWT, placeId, updatedParams)
+  if (!liked) return res.send(errResponse(baseResponseStatus.PLACE_UPDATE_STATUS_EMPTY))
+  const isLiked = Number(liked)
+  if (isLiked !== 1 && isLiked !== -1) return res.send(errResponse(baseResponseStatus.PLACE_UPDATE_STATUS_WRONG))
+  const updatePlaceRes = await placeService.updatePlaceLiked(userIdFromJWT, placeId, isLiked)
   return res.send(updatePlaceRes)
 }

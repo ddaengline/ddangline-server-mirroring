@@ -6,7 +6,11 @@ const { User } = require('../../models/User')
 async function createCollection(userId, name){
   switch (arguments.length) {
     case 1: // default
-      return Collection.insertMany([{ userId, name: "liked", type: "LIKED" }, { userId, name: "marked", type: "MARKED" }, { userId, name: "visited", type: "VISITED" }])
+      return Collection.insertMany([{ userId, name: "추천한 곳", type: "LIKED" }, {
+        userId,
+        name: "저장한 곳",
+        type: "MARKED"
+      }, { userId, name: "가본 곳", type: "VISITED" }])
     case 2:
       const collection = new Collection({ name, userId })
       return collection.save()
@@ -27,8 +31,22 @@ async function updateCollectionOrder(collectionId, order){
   return Collection.findByIdAndUpdate(collectionId, { $inc: { order } }, { new: true })
 }
 
+// 좋아요
+async function updatePlaceLiked(userId, placeId, liked){
+  if (liked === 1) return Collection.findOneAndUpdate({ userId, type: "LIKED" }, { $push: { places: placeId }, $inc: { total: 1 } })
+  else return Collection.findOneAndUpdate({ userId, type: "LIKED" }, { $pull: { places: placeId }, $inc: { total: -1 } })
+}
+
 async function getCollections(userId){
   return Collection.find({ userId }, { _id: 1, name: 1, type: 1, total: 1, order: 1 }).sort({ order: 1 })
+}
+
+async function getCollectionsLastOrder(userId){
+  return Collection.findOne({ userId }, { order: 1 }).sort({ order: -1 }).limit(1)
+}
+
+async function getUserName(userId){
+  return User.findById(userId, { username: 1, _id: 0 })
 }
 
 async function getCollection(userId, collectionId){
@@ -54,14 +72,6 @@ async function getCollection(userId, collectionId){
     )
 }
 
-async function getCollectionsLastOrder(userId){
-  return Collection.findOne({ userId }, { order: 1 }).sort({ order: -1 }).limit(1)
-}
-
-async function getUserName(userId){
-  return User.findById(userId, { username: 1, _id: 0 })
-}
-
 async function getPlaceInCollection(collectionId, placeId){
   return Collection.findOne({ _id: collectionId, places: placeId })
 }
@@ -80,7 +90,7 @@ module.exports = {
   getUserName,
   getCollection,
   pushPlaceToCollection,
-  updateCollectionName, updateCollectionOrder,
+  updateCollectionName, updateCollectionOrder, updatePlaceLiked,
   getPlaceInCollection,
   deletePlaceInCollection, deleteCollection
 }

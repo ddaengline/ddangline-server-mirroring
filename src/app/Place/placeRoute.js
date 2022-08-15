@@ -10,8 +10,10 @@ module.exports = function(app){
   app.get('/app/v1/places/category/:categoryId', jwtMiddleware, place.getPlaces);
   // 가게 상세
   app.get('/app/v1/places/:placeId', jwtMiddleware, place.getPlace);
-  // TODO: 가본곳, 좋아요, 마크하기
-  app.patch('/app/v1/places/:placeId', jwtMiddleware, place.updateMyPlace)
+  // TODO: 좋아요, 마크, 가봤어요
+  app.patch('/app/v1/places/:placeId/liked', jwtMiddleware, place.updatePlaceLiked)
+  // app.patch('/app/v1/places/:placeId/marked', jwtMiddleware, place.updatePlaceMarked)
+  // app.patch('/app/v1/places/:placeId/visited', jwtMiddleware, place.updatePlaceVisited)
   // TODO: Tip 추가
 
   // TODO: Tip에서 사용자 신고하기
