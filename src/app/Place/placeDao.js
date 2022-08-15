@@ -64,7 +64,7 @@ async function getPlaces(userId, categoryId, pageOffSet, station, time, domain){
           _id: 1, name: 1, domain: 1,
           station: { $arrayElemAt: ['$station', 0] },
           images: 1,
-          isLiked: { $in: [userId, '$liked'] },
+          isLiked: { $in: [userId, '$lik:Wqed'] },
           isMarked: { $in: [userId, '$marked'] },
           isVisited: { $in: [userId, '$visited'] },
         });
