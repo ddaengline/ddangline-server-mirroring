@@ -6,10 +6,9 @@ const baseResponseStatus = require('../../../config/baseResponseStatus');
 exports.postCollection = async(req, res) => {
   const { name } = req.body
   const userIdFromJWT = req.verifiedToken.userId
+  if (!name) return res.send(errResponse(baseResponseStatus.COLLECTION_NAME_EMPTY))
   const n = name.trim()
-  if (!n || n.length < 1) {
-    return res.send(errResponse(baseResponseStatus.COLLECTION_NAME_EMPTY))
-  }
+  if (!n || n.length < 1) return res.send(errResponse(baseResponseStatus.COLLECTION_NAME_EMPTY))
   const createCollectionRes = await collectionService.createCollection(userIdFromJWT, n)
   return res.send(createCollectionRes)
 }
