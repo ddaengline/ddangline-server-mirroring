@@ -33,6 +33,12 @@ exports.getCollections = async(req, res) => {
   return res.send(getCollections)
 }
 
+exports.getCollectionsToSave = async(req, res) => {
+  const userIdFromJWT = req.verifiedToken.userId
+  const getCollections = await collectionProvider.getCollectionsToSave(userIdFromJWT)
+  return res.send(getCollections)
+}
+
 exports.getCollection = async(req, res) => {
   const userIdFromJWT = req.verifiedToken.userId
   const collectionId = req.params.collectionId;

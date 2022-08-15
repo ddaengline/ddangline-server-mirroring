@@ -9,8 +9,10 @@ module.exports = function(app){
   app.post('/app/v1/users/collections', jwtMiddleware, collection.postCollection)
   // TODO: 특정 수납장 > 특정 가게 추가에서, 가게 순서 추가해야함
   app.post('/app/v1/users/collections/:collectionId', jwtMiddleware, collection.postPlace)
-  // 내 수납장 보기
+  // 마이페이지에서 내 수납장 리스트 보기
   app.get('/app/v1/users/collections', jwtMiddleware, collection.getCollections)
+  // 가게상세 > 저장할 수납장 리스트 보기
+  app.get('/app/v1/users/collections/save', jwtMiddleware, collection.getCollectionsToSave)
   // 특정 수납장 보기
   app.get('/app/v1/users/collections/:collectionId', jwtMiddleware, collection.getCollection)
   // TODO: 특정 수납장, 특정 가게 제거.. 가게 순서는 재정렬

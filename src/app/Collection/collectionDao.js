@@ -33,12 +33,30 @@ async function updateCollectionOrder(collectionId, order){
 
 // 좋아요
 async function updatePlaceLiked(userId, placeId, liked){
-  if (liked === 1) return Collection.findOneAndUpdate({ userId, type: "LIKED" }, { $push: { places: placeId }, $inc: { total: 1 } })
-  else return Collection.findOneAndUpdate({ userId, type: "LIKED" }, { $pull: { places: placeId }, $inc: { total: -1 } })
+  if (liked === 1) return Collection.findOneAndUpdate({ userId, type: "LIKED" }, {
+    $push: { places: placeId },
+    $inc: { total: 1 }
+  })
+  else return Collection.findOneAndUpdate({ userId, type: "LIKED" }, {
+    $pull: { places: placeId },
+    $inc: { total: -1 }
+  })
 }
 
 async function getCollections(userId){
   return Collection.find({ userId }, { _id: 1, name: 1, type: 1, total: 1, order: 1 }).sort({ order: 1 })
+}
+
+async function getCollectionsToSave(userId){
+  return Collection.aggregate().match({
+    userId: ObjectId(userId),
+    type: { $in: ["MARKED", "USER"] }
+  }).sort({ order: 1 }).project({
+    _id: 1,
+    name: 1,
+    type: 1,
+    total: 1
+  })
 }
 
 async function getCollectionsLastOrder(userId){
@@ -86,7 +104,7 @@ async function deleteCollection(collectionId){
 
 module.exports = {
   createCollection,
-  getCollections, getCollectionsLastOrder,
+  getCollections, getCollectionsLastOrder, getCollectionsToSave,
   getUserName,
   getCollection,
   pushPlaceToCollection,
