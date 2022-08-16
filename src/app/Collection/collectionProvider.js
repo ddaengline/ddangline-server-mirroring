@@ -11,7 +11,6 @@ exports.getCollections = async(userId) => {
     const connection = await mongoose.connect(MONGO_URI, { dbName });
     const [{ username }, getCollectionsRes] = await Promise.all([collectionDao.getUserName(userId), collectionDao.getCollections(userId)])
     const res = { username, collectionSize: getCollectionsRes.length, collections: getCollectionsRes }
-    connection.disconnect()
     return response(baseResponseStatus.SUCCESS, res)
   } catch(err) {
     logger.error(`App - getCollections Service error\n: ${err.message}`)
@@ -24,7 +23,6 @@ exports.getCollectionsToSave = async(userId) => {
     const connection = await mongoose.connect(MONGO_URI, { dbName });
     const getCollectionsRes = await collectionDao.getCollectionsToSave(userId)
     const res = { collectionSize: getCollectionsRes.length, collections: getCollectionsRes }
-    connection.disconnect()
     return response(baseResponseStatus.SUCCESS, res)
   } catch(err) {
     logger.error(`App - getCollectionsToSave Service error\n: ${err.message}`)
@@ -38,7 +36,6 @@ exports.getCollection = async(userIdFromJWT, collectionId) => {
     const connection = await mongoose.connect(MONGO_URI, { dbName });
     const [res] = await collectionDao.getCollection(collectionId, userIdFromJWT)
     if (!res) return errResponse(baseResponseStatus.COLLECTION_NOT_EXIST)
-    connection.disconnect()
     return response(baseResponseStatus.SUCCESS, res)
   } catch(err) {
     logger.error(`App - getCollection Service error\n: ${err.message}`)

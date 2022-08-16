@@ -15,7 +15,6 @@ exports.createCollection = async(userId, name) => {
       await Promise.all([collectionDao.createCollection(userId), collectionDao.updateCollectionOrder(createCollectionRes._id, 1)])
     }
     const result = { _id: createCollectionRes._id }
-    connection.disconnect()
     return response(baseResponseStatus.SUCCESS, result)
   } catch(err) {
     logger.error(`App - createCollection Service error\n: ${err.message}`)
