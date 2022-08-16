@@ -10,7 +10,7 @@ async function getCategory(station, time, domain){
         .unwind({ path: '$theme' })
         .group({ _id: '$theme', count: { $sum: 1 } })
         .sort({ field: 'asc', count: -1 })
-        .project({ _id: 1, count: 1 });
+        .project({ _id: 1, count: 0 });
 
     case 3: // search 화면
       return Place.aggregate()
@@ -18,7 +18,7 @@ async function getCategory(station, time, domain){
         .unwind({ path: '$theme' })
         .group({ _id: '$theme', count: { $sum: 1 } })
         .sort({ field: 'asc', count: -1 })
-        .project({ _id: 1 })
+        .project({ _id: 1, count: 0 })
   }
 }
 
