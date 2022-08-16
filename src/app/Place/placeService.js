@@ -94,7 +94,6 @@ exports.updatePlaces = async() => {
 exports.updatePlaceStatus = async(userId, placeId, status, domain) => {
   try {
     const connection = await mongoose.connect(MONGO_URI, { dbName });
-    mongoose.set('debug', true);
     const [isChecked] = await placeDao.isCheck(placeId, userId, domain)
     // 광클 방지
     if ((isChecked && status === 1) || (!isChecked && status === -1)) return response(baseResponseStatus.SUCCESS)

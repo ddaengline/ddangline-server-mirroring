@@ -35,7 +35,7 @@ exports.getCollectionsToSave = async(userId) => {
 exports.getCollection = async(userIdFromJWT, collectionId) => {
   try {
     const connection = await mongoose.connect(MONGO_URI, { dbName });
-    const [res] = await collectionDao.getCollection(userIdFromJWT, collectionId)
+    const [res] = await collectionDao.getCollection(collectionId, userIdFromJWT)
     if (!res) return errResponse(baseResponseStatus.COLLECTION_NOT_EXIST)
     connection.disconnect()
     return response(baseResponseStatus.SUCCESS, res)

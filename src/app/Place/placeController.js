@@ -78,6 +78,7 @@ exports.updatePlaceStatus = async(req, res) => {
   const { type } = req.body // -1, 1 둘 중 하나여야함.
   const userIdFromJWT = req.verifiedToken.userId
   const placeId = req.params.placeId;
+  if (!type) return res.send(errResponse(baseResponseStatus.PLACE_UPDATE_STATUS_EMPTY))
   const { domain, value } = type
   if (!placeId || placeId === ':placeId') return res.send(errResponse(baseResponseStatus.PLACE_ID_EMPTY))
   if (!domain || !value) return res.send(errResponse(baseResponseStatus.PLACE_UPDATE_STATUS_EMPTY))

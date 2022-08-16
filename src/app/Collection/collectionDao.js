@@ -100,16 +100,15 @@ async function getCollection(collectionId, userId){
                   _id: "$$place._id", name: "$$place.name",
                   station: { $arrayElemAt: ["$$place.station", 0] },
                   images: { $slice: ["$$place.images", 1] },
-                  isLiked: { $in: [userId, '$$place.liked'] },
-                  isMarked: { $in: [userId, '$$place.marked'] },
-                  isVisited: { $in: [userId, '$$place.visited'] },
+                  isLiked: { $in: [ObjectId(userId), '$$place.liked'] },
+                  isMarked: { $in: [ObjectId(userId), '$$place.marked'] },
+                  isVisited: { $in: [ObjectId(userId), '$$place.visited'] },
                 }
               }
             }
           }
         )
   }
-
 }
 
 // 특정 장소를 가지고 있는 특정 수납장
@@ -124,7 +123,7 @@ async function getMarkedHasPlace(userId, placeId){
 
 // 특정 장소를 가지고 있는 모든 유저 수납장
 async function getUserCollectionsHavePlace(userId, placeId){
-  return Collection.find({ userId, type: "MARKED", places: placeId })
+  return Collection.find({ userId, type: "USER", places: placeId })
 }
 
 async function deletePlaceInCollection(collectionId, placeId){
@@ -142,7 +141,6 @@ async function deletePlacesInUser(userId, placeId){
     $inc: { total: -1 }
   })
 }
-
 
 async function deleteCollection(collectionId){
   return Collection.findByIdAndDelete(collectionId)

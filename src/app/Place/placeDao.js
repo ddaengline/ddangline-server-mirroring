@@ -100,9 +100,9 @@ async function getPlace(placeId, userId){
     station: { $arrayElemAt: ['$station', 0] },
     domain: 1,
     "location.coordinates": 1,
-    isLiked: { $in: [ObjectId(userId), '$liked'] },
-    isMarked: { $in: [ObjectId(userId), '$marked'] },
-    isVisited: { $in: [ObjectId(userId), '$visited'] },
+    isLiked: { $in: [userId, '$liked'] },
+    isMarked: { $in: [userId, '$marked'] },
+    isVisited: { $in: [userId, '$visited'] },
     tips: 1,
     images: 1
   })
@@ -144,10 +144,7 @@ async function updatePlaceStatus(placeId, userId, status, domain){
     else return Place.findByIdAndUpdate(placeId, { $pull: { liked: userId }, $inc: { totalLiked: -1 } })
   }
   if (domain === "marked") {
-    if (status === 1) return Place.findByIdAndUpdate(placeId, {
-      $push: { marked: userId },
-      $inc: { totalMarked: 1 }
-    })
+    if (status === 1) return Place.findByIdAndUpdate(placeId, { $push: { marked: userId }, $inc: { totalMarked: 1 } })
     else return Place.findByIdAndUpdate(placeId, { $pull: { marked: userId }, $inc: { totalMarked: -1 } })
   }
   if (domain === "visited") {
