@@ -2,6 +2,7 @@ const { response, errResponse } = require('../../../config/response');
 const baseResponseStatus = require('../../../config/baseResponseStatus');
 const placeProvider = require('./placeProvider');
 const placeService = require('./placeService');
+const { logger } = require("../../../config/winston");
 
 exports.getCategory = async(req, res) => {
   const { station, time, domain } = req.query;
@@ -83,6 +84,7 @@ exports.updatePlaceStatus = async(req, res) => {
   const status = Number(value)
   if ((status !== 1 && status !== -1) || (domain !== "liked" && domain !== "visited"))
     return res.send(errResponse(baseResponseStatus.PLACE_UPDATE_STATUS_WRONG))
+  logger.debug(`[App] 좋아요/가본곳 Request 파라미터들, domain : ${domain}, status: ${status}`)
   const updatePlaceRes = await placeService.updatePlaceStatus(userIdFromJWT, placeId, status, domain)
   return res.send(updatePlaceRes)
 }

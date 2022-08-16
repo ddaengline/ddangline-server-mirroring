@@ -95,7 +95,8 @@ exports.updatePlaceStatus = async(userId, placeId, status, domain) => {
     const connection = await mongoose.connect(MONGO_URI, { dbName });
     const [isChecked] = await placeDao.isCheck(placeId, userId, domain)
     // 광클 방지
-    if ((isChecked && status === 1) || (!isChecked && status === -1)) return response(baseResponseStatus.SUCCESS)
+    logger.debug(`[App] 좋아요/가본곳 체크된 장소인가? the check place : ${isChecked}`)
+    if ((isChecked && status === 1) || (!isChecked && status === -1)) return response(baseResponseStatus.SUCCESS, `${isChecked}`)
     await Promise.all([placeDao.updatePlaceStatus(placeId, userId, status, domain), collectionDao.updatePlaceStatusInCollection(userId, placeId, status, domain)])
     return response(baseResponseStatus.SUCCESS);
   } catch(err) {
