@@ -73,16 +73,17 @@ exports.updatePlaces = async(req, res) => {
   return res.send(updatedPlaces);
 };
 
-// 좋아요, 싫어요, 갔다옴
-exports.updatePlaceLiked = async(req, res) => {
-  const { liked } = req.body
-  // -1, 1 둘 중 하나여야함.
+// 추천하기, 가본곳 (저장하기는 collection에서)
+exports.updatePlaceStatus = async(req, res) => {
+  const { type } = req.body // -1, 1 둘 중 하나여야함.
   const userIdFromJWT = req.verifiedToken.userId
   const placeId = req.params.placeId;
+  const { domain, value } = type
   if (!placeId || placeId === ':placeId') return res.send(errResponse(baseResponseStatus.PLACE_ID_EMPTY))
-  if (!liked) return res.send(errResponse(baseResponseStatus.PLACE_UPDATE_STATUS_EMPTY))
-  const isLiked = Number(liked)
-  if (isLiked !== 1 && isLiked !== -1) return res.send(errResponse(baseResponseStatus.PLACE_UPDATE_STATUS_WRONG))
-  const updatePlaceRes = await placeService.updatePlaceLiked(userIdFromJWT, placeId, isLiked)
+  if (!domain || !value) return res.send(errResponse(baseResponseStatus.PLACE_UPDATE_STATUS_EMPTY))
+  const status = Number(value)
+  if ((status !== 1 && status !== -1) || (domain !== "liked" && domain !== "visited"))
+    return res.send(errResponse(baseResponseStatus.PLACE_UPDATE_STATUS_WRONG))
+  const updatePlaceRes = await placeService.updatePlaceStatus(userIdFromJWT, placeId, status, domain)
   return res.send(updatePlaceRes)
 }

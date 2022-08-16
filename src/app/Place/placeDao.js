@@ -134,13 +134,44 @@ async function updateDefault(){
   return Place.updateMany({}, { $set: { totalLiked: 0, totalMarked: 0, totalVisited: 0 } });
 }
 
-async function updatePlaceLiked(placeId, userId, liked){
-  if (liked === 1) return Place.findByIdAndUpdate(placeId, { $push: { liked: ObjectId(userId) }, $inc: { totalLiked: 1 } })
-  else return Place.findByIdAndUpdate(placeId, { $pull: { liked: ObjectId(userId) }, $inc: { totalLiked: -1 } })
+// Collection에서도 쓰임
+async function updatePlaceStatus(placeId, userId, status, domain){
+  if (domain === "liked") {
+    if (status === 1) return Place.findByIdAndUpdate(placeId, {
+      $push: { liked: userId },
+      $inc: { totalLiked: 1 }
+    })
+    else return Place.findByIdAndUpdate(placeId, { $pull: { liked: userId }, $inc: { totalLiked: -1 } })
+  }
+  if (domain === "marked") {
+    if (status === 1) return Place.findByIdAndUpdate(placeId, {
+      $push: { marked: userId },
+      $inc: { totalMarked: 1 }
+    })
+    else return Place.findByIdAndUpdate(placeId, { $pull: { marked: userId }, $inc: { totalMarked: -1 } })
+  }
+  if (domain === "visited") {
+    if (status === 1) return Place.findByIdAndUpdate(placeId, {
+      $push: { visited: userId },
+      $inc: { totalVisited: 1 }
+    })
+    else return Place.findByIdAndUpdate(placeId, { $pull: { visited: userId }, $inc: { totalVisited: -1 } })
+  }
 }
 
-async function isLiked(placeId, userId){
-  return Place.aggregate().match({ $expr: { $in: [ObjectId(userId), "$liked"] }, _id: ObjectId(placeId) })
+async function isCheck(placeId, userId, domain){
+  if (domain === "liked") return Place.aggregate().match({
+    $expr: { $in: [ObjectId(userId), "$liked"] },
+    _id: ObjectId(placeId)
+  })
+  if (domain === "marked") return Place.aggregate().match({
+    $expr: { $in: [ObjectId(userId), "$marked"] },
+    _id: ObjectId(placeId)
+  })
+  if (domain === "visited") return Place.aggregate().match({
+    $expr: { $in: [ObjectId(userId), "$visited"] },
+    _id: ObjectId(placeId)
+  })
 }
 
 module.exports = {
@@ -151,5 +182,5 @@ module.exports = {
   createMany,
   getPlacesInToggle,
   updateDefault,
-  updatePlaceLiked, isLiked
+  updatePlaceStatus, isCheck
 };

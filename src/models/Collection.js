@@ -1,6 +1,5 @@
 // 수납장
 // TODO: placeId 순서 배치는 어떻게 할 것인가?
-// TODO: name unique 제거
 const { Schema, model, Types } = require('mongoose');
 
 const CollectionSchema = new Schema({

@@ -35,16 +35,28 @@ async function updateCollectionOrder(collectionId, order){
   return Collection.findByIdAndUpdate(collectionId, { $inc: { order } }, { new: true })
 }
 
-// 좋아요
-async function updatePlaceLiked(userId, placeId, liked){
-  if (liked === 1) return Collection.findOneAndUpdate({ userId, type: "LIKED" }, {
-    $push: { places: placeId },
-    $inc: { total: 1 }
-  })
-  else return Collection.findOneAndUpdate({ userId, type: "LIKED" }, {
-    $pull: { places: placeId },
-    $inc: { total: -1 }
-  })
+// Place에서 쓰임(추천해요, 갔다옴)
+async function updatePlaceStatusInCollection(userId, placeId, status, domain){
+  if (domain === "liked") {
+    if (status === 1) return Collection.findOneAndUpdate({ userId, type: "LIKED" }, {
+      $push: { places: placeId },
+      $inc: { total: 1 }
+    })
+    else return Collection.findOneAndUpdate({ userId, type: "LIKED" }, {
+      $pull: { places: placeId },
+      $inc: { total: -1 }
+    })
+  }
+  if (domain === "visited") {
+    if (status === 1) return Collection.findOneAndUpdate({ userId, type: "VISITED" }, {
+      $push: { places: placeId },
+      $inc: { total: 1 }
+    })
+    else return Collection.findOneAndUpdate({ userId, type: "VISITED" }, {
+      $pull: { places: placeId },
+      $inc: { total: -1 }
+    })
+  }
 }
 
 async function getCollections(userId){
@@ -100,12 +112,19 @@ async function getCollection(collectionId, userId){
 
 }
 
+// 특정 장소를 가지고 있는 특정 수납장
 async function getPlaceInCollection(collectionId, placeId){
   return Collection.findOne({ _id: collectionId, places: placeId })
 }
 
-async function getPlaceInMarked(userId, placeId){
+// 특정 장소를 가지고 있는 저장한 곳
+async function getMarkedHasPlace(userId, placeId){
   return Collection.findOne({ userId, type: "MARKED", places: placeId })
+}
+
+// 특정 장소를 가지고 있는 모든 유저 수납장
+async function getUserCollectionsHavePlace(userId, placeId){
+  return Collection.find({ userId, type: "MARKED", places: placeId })
 }
 
 async function deletePlaceInCollection(collectionId, placeId){
@@ -116,17 +135,23 @@ async function deletePlaceInMarked(userId, placeId){
   return Collection.updateOne({ userId, type: "MARKED" }, { $pull: { places: placeId }, $inc: { total: -1 } })
 }
 
+// 특정 장소들 가지고 있는 모든 유저 수납장들 제거
+async function deletePlacesInUser(userId, placeId){
+  return Collection.updateMany({ userId, type: "USER", places: placeId }, {
+    $pull: { places: placeId },
+    $inc: { total: -1 }
+  })
+}
+
+
 async function deleteCollection(collectionId){
   return Collection.findByIdAndDelete(collectionId)
 }
 
 module.exports = {
   createCollection,
-  getCollections, getCollectionsLastOrder, getCollectionsToSave,
-  getUserName,
-  getCollection,
-  pushPlaceToCollection, pushPlaceToMarked,
-  updateCollectionName, updateCollectionOrder, updatePlaceLiked,
-  getPlaceInCollection, getPlaceInMarked,
-  deletePlaceInMarked, deletePlaceInCollection, deleteCollection
+  getCollections, getCollectionsLastOrder, getCollectionsToSave, getUserName, getCollection,
+  pushPlaceToCollection, pushPlaceToMarked, updateCollectionName, updateCollectionOrder, updatePlaceStatusInCollection,
+  getPlaceInCollection, getMarkedHasPlace, getUserCollectionsHavePlace,
+  deletePlaceInMarked, deletePlaceInCollection, deletePlacesInUser, deleteCollection
 }

@@ -86,22 +86,22 @@ exports.updatePlaces = async() => {
     const result = await placeDao.updateDefault();
     return response(baseResponseStatus.SUCCESS, result);
   } catch(err) {
-
     return errResponse(baseResponseStatus.DB_ERROR);
   }
 };
 
-exports.updatePlaceLiked = async(userId, placeId, liked) => {
+// 추천하기, 가본곳 (저장하기는 collection에서)
+exports.updatePlaceStatus = async(userId, placeId, status, domain) => {
   try {
     const connection = await mongoose.connect(MONGO_URI, { dbName });
     mongoose.set('debug', true);
-    const [isLiked] = await placeDao.isLiked(placeId, userId)
+    const [isChecked] = await placeDao.isCheck(placeId, userId, domain)
     // 광클 방지
-    if ((isLiked && liked === 1) || (!isLiked && liked === -1)) return response(baseResponseStatus.SUCCESS)
-    await Promise.all([placeDao.updatePlaceLiked(placeId, userId, liked), collectionDao.updatePlaceLiked(userId, placeId, liked)])
+    if ((isChecked && status === 1) || (!isChecked && status === -1)) return response(baseResponseStatus.SUCCESS)
+    await Promise.all([placeDao.updatePlaceStatus(placeId, userId, status, domain), collectionDao.updatePlaceStatusInCollection(userId, placeId, status, domain)])
     return response(baseResponseStatus.SUCCESS);
   } catch(err) {
-    logger.error(`App - updatePlaceLiked Service error\n: ${err.message}`)
+    logger.error(`App - updatePlaceStatus Service error\n: ${err.message}`)
     return errResponse(baseResponseStatus.DB_ERROR);
   }
 }

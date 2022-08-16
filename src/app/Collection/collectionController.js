@@ -63,7 +63,7 @@ exports.updateCollectionName = async(req, res) => {
   return res.send(updateCollectionRes)
 }
 
-exports.deletePlaceInCollection = async(req, res) => {
+exports.deletePlace = async(req, res) => {
   const userIdFromJWT = req.verifiedToken.userId
   const { collectionId, placeId } = req.params
   const collection = collectionId.trim()
@@ -72,7 +72,7 @@ exports.deletePlaceInCollection = async(req, res) => {
   if (!mongoose.isValidObjectId(collection)) return res.send(errResponse(baseResponseStatus.COLLECTION_ID_WRONG))
   if (!place || place === ':placeId') return res.send(errResponse(baseResponseStatus.PLACE_ID_EMPTY))
   if (!mongoose.isValidObjectId(place)) return res.send(errResponse(baseResponseStatus.PLACE_ID_WRONG))
-  const deletePlaceRes = await collectionService.deletePlaceInCollection(userIdFromJWT, collection, place)
+  const deletePlaceRes = await collectionService.deletePlace(userIdFromJWT, collection, place)
   return res.send(deletePlaceRes)
 }
 
