@@ -86,7 +86,6 @@ exports.deleteUser = async(id) => {
     const { isSuccess, code } = baseResponseStatus.SUCCESS;
     return response({ isSuccess, code, message: '회원 탈퇴 성공' })
   } catch(e) {
-    console.log({e})
     logger.error(`App - deleteUser Service error\n: ${err.message}`)
     return errResponse(baseResponseStatus.DB_ERROR)
   }

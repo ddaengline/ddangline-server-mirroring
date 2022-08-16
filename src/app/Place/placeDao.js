@@ -50,7 +50,7 @@ async function getPlacesInToggle(categoryName, station, time, domain){
   }
 }
 
-async function getPlaces(userId, categoryId, pageOffSet, station, time, domain){
+async function getPlaces(userId, categoryName, pageOffSet, station, time, domain){
   // TODO: 좋아요 순 sort
   const limit = 10;
   const skip = limit * pageOffSet;
@@ -58,7 +58,7 @@ async function getPlaces(userId, categoryId, pageOffSet, station, time, domain){
     // home
     case 3:
       return Place.aggregate()
-        .match({ theme: { $in: [categoryId] } })
+        .match({ theme: { $in: [categoryName] } })
         .limit(skip + limit)
         // .sort({ field: 'asc', totalLiked: -1})
         .skip(skip)
@@ -74,7 +74,7 @@ async function getPlaces(userId, categoryId, pageOffSet, station, time, domain){
       // search
       return Place.aggregate()
         .match({
-          theme: { $in: [categoryId] },
+          theme: { $in: [categoryName] },
           domain: { $in: [domain] },
           walkTime: { $lte: time },
           station: { $in: [station] }
@@ -100,9 +100,9 @@ async function getPlace(placeId, userId){
     station: { $arrayElemAt: ['$station', 0] },
     domain: 1,
     "location.coordinates": 1,
-    isLiked: { $in: [userId, '$liked'] },
-    isMarked: { $in: [userId, '$marked'] },
-    isVisited: { $in: [userId, '$visited'] },
+    isLiked: { $in: [ObjectId(userId), '$liked'] },
+    isMarked: { $in: [ObjectId(userId), '$marked'] },
+    isVisited: { $in: [ObjectId(userId), '$visited'] },
     tips: 1,
     images: 1
   })
@@ -137,10 +137,7 @@ async function updateDefault(){
 // Collection에서도 쓰임
 async function updatePlaceStatus(placeId, userId, status, domain){
   if (domain === "liked") {
-    if (status === 1) return Place.findByIdAndUpdate(placeId, {
-      $push: { liked: userId },
-      $inc: { totalLiked: 1 }
-    })
+    if (status === 1) return Place.findByIdAndUpdate(placeId, { $push: { liked: userId }, $inc: { totalLiked: 1 } })
     else return Place.findByIdAndUpdate(placeId, { $pull: { liked: userId }, $inc: { totalLiked: -1 } })
   }
   if (domain === "marked") {
@@ -148,10 +145,7 @@ async function updatePlaceStatus(placeId, userId, status, domain){
     else return Place.findByIdAndUpdate(placeId, { $pull: { marked: userId }, $inc: { totalMarked: -1 } })
   }
   if (domain === "visited") {
-    if (status === 1) return Place.findByIdAndUpdate(placeId, {
-      $push: { visited: userId },
-      $inc: { totalVisited: 1 }
-    })
+    if (status === 1) return Place.findByIdAndUpdate(placeId, { $push: { visited: userId }, $inc: { totalVisited: 1 } })
     else return Place.findByIdAndUpdate(placeId, { $pull: { visited: userId }, $inc: { totalVisited: -1 } })
   }
 }

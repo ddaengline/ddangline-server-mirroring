@@ -22,6 +22,7 @@ const PlcaeSchema = new Schema(
     },
     link: { type: [], trim: true },
     images: { type: [], trim: true },
+    totalTips: { type: Number, required: true, default: 0 }, // computed field
     tips: {
       type: [
         {
