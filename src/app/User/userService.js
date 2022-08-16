@@ -52,7 +52,6 @@ exports.createUser = async(postParams) => {
 exports.updateUserName = async(id, name) => {
   try {
     const connection = await mongoose.connect(MONGO_URI, { dbName });
-    connection.set('debug', true)
     const updatedUser = await userDao.updateUserName(id, name);
     connection.disconnect();
     return response(baseResponseStatus.SUCCESS, updatedUser)
@@ -65,7 +64,6 @@ exports.updateUserName = async(id, name) => {
 exports.updateUserPassword = async(id, currentPassword, newPassword) => {
   try {
     const connection = await mongoose.connect(MONGO_URI, { dbName });
-    connection.set('debug', true)
     const pw = await userDao.getPassword(id, currentPassword)
     const hashedCurrentPw = await crypto.createHash('sha512').update(currentPassword).digest('hex');
     if (pw.password !== hashedCurrentPw) return errResponse(baseResponseStatus.SIGNIN_PASSWORD_WRONG)
@@ -100,16 +98,12 @@ exports.postSignIn = async(resEmail, resPassword) => {
     const userByEmail = await userProvider.getUserByEmail(resEmail);
     if (!userByEmail) return errResponse(baseResponseStatus.USER_USEREMAIL_NOT_EXIST);
     const hashedPassword = await crypto.createHash('sha512').update(resPassword).digest('hex');
-
     const { _id: userId, password, status } = userByEmail;
-
     // password 확인
     if (password !== hashedPassword) return errResponse(baseResponseStatus.SIGNIN_PASSWORD_WRONG);
-
     // 계정 상태 확인
     if (status === 'SLEEP') return errResponse(baseResponseStatus.SIGNIN_INACTIVE_ACCOUNT)
     if (status === 'WITHDRAWAL') return errResponse(baseResponseStatus.SIGNIN_WITHDRAWAL_ACCOUNT)
-
     // access token 생성
     let token = await jwt.sign(
       { userId, },

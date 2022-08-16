@@ -3,7 +3,6 @@ const { Collection } = require('../../models/Collection')
 const { Place } = require('../../models/Place')
 
 // 유저 생성
-// TODO: defulat 수납장 생성하기
 async function createUser(insertUserInfoParams){
   const user = new User(insertUserInfoParams);
   return user.save();
@@ -35,17 +34,17 @@ async function updateUserPassword(id, pw){
 
 async function deleteUser(id){
   // TODO: 유저 상태 변경'WITHDRAWAL', 유저 수납장 삭제, 가게 좋아요/싫어요/갔다옴 pull
-  // TODO : set totalNumber
-  const[deletedUser] = await Promise.all([User.findOneAndUpdate({ _id: id }, { status: 'WITHDRAWAL' }, {
-    runValidators: true,
-    new: true,
-    projection: { _id: 1 }
-  }),
-    Collection.deleteMany({ userId: id }), Place.updateMany({},
-      {
-        $pull: { "liked.$[user]": id,"marked.$[user]": id, "visited.$[user]": id }
-      },
-      { arrayFilters: [{ user: id }] })])
+  // TODO : 가게 추천/저장/갔다옴 totalNumber
+  const [deletedUser] = await Promise.all([User.findOneAndUpdate({ _id: id }, { status: 'WITHDRAWAL' },
+    {
+      runValidators: true,
+      new: true,
+      projection: { _id: 1 }
+    }), Collection.deleteMany({ userId: id }),
+    Place.updateMany({ liked: id }, { $pull: { liked: id }, $inc: { totalLiked: -1 } }),
+    Place.updateMany({ marked: id }, { $pull: { marked: id }, $inc: { totalMarked: -1 } }),
+    Place.updateMany({ visited: id }, { $pull: { visited: id }, $inc: { totalVisited: -1 } }),
+  ])
   return deletedUser
 }
 

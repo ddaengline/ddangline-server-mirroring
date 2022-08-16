@@ -3,9 +3,11 @@ const ObjectId = mongoose.Types.ObjectId
 const { Collection } = require('../../models/Collection')
 const { User } = require('../../models/User')
 
+
+// User에서도 쓰임
 async function createCollection(userId, name){
   switch (arguments.length) {
-    case 1: // default
+    case 1: // default 수납장들 한번에 만들어짐
       return Collection.insertMany([{ userId, name: "추천한 곳", type: "LIKED" }, {
         userId,
         name: "저장한 곳",
