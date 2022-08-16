@@ -47,7 +47,6 @@ exports.pushPlace = async(userId, collectionId, placeId) => {
     const { isSuccess, code } = baseResponseStatus.SUCCESS;
     return response({ isSuccess, code, message: "장소 추가 성공" })
   } catch(err) {
-    console.log({ err })
     logger.error(`App - pushPlace Service error\n: ${err.message}`)
     return errResponse(baseResponseStatus.DB_ERROR)
   }

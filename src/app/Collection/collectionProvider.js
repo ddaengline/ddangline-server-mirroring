@@ -14,6 +14,7 @@ exports.getCollections = async(userId) => {
     connection.disconnect()
     return response(baseResponseStatus.SUCCESS, res)
   } catch(err) {
+    logger.error(`App - getCollections Service error\n: ${err.message}`)
     return errResponse(baseResponseStatus.DB_ERROR)
   }
 }
@@ -26,7 +27,7 @@ exports.getCollectionsToSave = async(userId) => {
     connection.disconnect()
     return response(baseResponseStatus.SUCCESS, res)
   } catch(err) {
-    console.log({ err })
+    logger.error(`App - getCollectionsToSave Service error\n: ${err.message}`)
     return errResponse(baseResponseStatus.DB_ERROR)
   }
 }
@@ -40,8 +41,7 @@ exports.getCollection = async(userIdFromJWT, collectionId) => {
     connection.disconnect()
     return response(baseResponseStatus.SUCCESS, res)
   } catch(err) {
-    console.log({ err })
-    logger.error(`App - pushPlace Service error\n: ${err.message}`)
+    logger.error(`App - getCollection Service error\n: ${err.message}`)
     return errResponse(baseResponseStatus.DB_ERROR)
   }
 }
