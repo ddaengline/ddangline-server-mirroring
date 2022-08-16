@@ -31,11 +31,9 @@ exports.getUser = async(req, res) => {
 }
 
 exports.updateUserName = async(req, res) => {
-  const { userId, name } = req.body;
+  const { name } = req.body;
   let n = name.trim()
   const userIdFromJWT = req.verifiedToken.userId
-  if (!mongoose.isValidObjectId(userId)) return res.send(errResponse(baseResponseStatus.USER_ID_NOT_MATCH))
-  if (userId !== userIdFromJWT) return res.send(errResponse(baseResponseStatus.USER_USERID_JWT_WRONG))
   if (!n || n.length === 0) return res.send(errResponse(baseResponseStatus.USER_NICKNAME_EMPTY))
   if (n.length > 20) return res.send(errResponse(baseResponseStatus.SIGNUP_NICKNAME_LENGTH))
   const user = await userService.updateUserName(userIdFromJWT, n)
@@ -43,12 +41,10 @@ exports.updateUserName = async(req, res) => {
 }
 
 exports.updateUserPassword = async(req, res) => {
-  const { userId, currentPassword, newPassword } = req.body;
+  const { currentPassword, newPassword } = req.body;
   const cp = currentPassword.trim()
   const np = newPassword.trim()
   const userIdFromJWT = req.verifiedToken.userId
-  if (!mongoose.isValidObjectId(userId)) return res.send(errResponse(baseResponseStatus.USER_ID_NOT_MATCH))
-  if (userId !== userIdFromJWT) return res.send(errResponse(baseResponseStatus.USER_USERID_JWT_WRONG))
   if (!cp || cp.length === 0) return res.send(errResponse(baseResponseStatus.SIGNUP_PASSWORD_EMPTY))
   if (!np || np.length === 0) return res.send(errResponse(baseResponseStatus.UPDATE_PASSWORD_EMPTY))
   if (cp === np) return res.send(errResponse(baseResponseStatus.UPDATE_PASSWORD_EQUAL))
