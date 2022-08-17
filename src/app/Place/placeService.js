@@ -42,7 +42,7 @@ const readCSVPlaces = async() => {
 
 const readJSONPlaces = async() => {
   try {
-    const jsonFile = fs.readFileSync(appDir + '/src/app/Place/final.json', 'utf8');
+    const jsonFile = fs.readFileSync(appDir + '/src/app/Place/finalPlaces.json', 'utf8');
     return JSON.parse(jsonFile);
   } catch(err) {
     console.log({ err });
@@ -66,7 +66,6 @@ exports.imoprtPlaces = async() => {
         }
       }
     }))
-
     const connection = await mongoose.connect(MONGO_URI, { dbName });
     connection.set('debug', true);
     const createdPlaces = await placeDao.createMany(result);
