@@ -80,7 +80,7 @@ exports.updatePlaceStatus = async(req, res) => {
   const userIdFromJWT = req.verifiedToken.userId
   const placeId = req.params.placeId;
   if (!placeId || placeId === ':placeId') return res.send(errResponse(baseResponseStatus.PLACE_ID_EMPTY))
-  if (mongoose.isValidObjectId(placeId)) return res.send(errResponse(baseResponseStatus.PLACE_ID_WRONG))
+  if (!mongoose.isValidObjectId(placeId)) return res.send(errResponse(baseResponseStatus.PLACE_ID_WRONG))
   if (!domain || !value) return res.send(errResponse(baseResponseStatus.PLACE_UPDATE_STATUS_EMPTY))
   const status = Number(value)
   if ((status !== 1 && status !== -1) || (domain !== "liked" && domain !== "visited"))
