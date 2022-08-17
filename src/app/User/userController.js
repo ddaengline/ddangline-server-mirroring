@@ -54,10 +54,8 @@ exports.updateUserPassword = async(req, res) => {
 }
 
 exports.deleteUser = async(req, res) => {
-  const { userId } = req.body;
   const userIdFromJWT = req.verifiedToken.userId
-  if (!mongoose.isValidObjectId(userId)) return res.send(errResponse(baseResponseStatus.USER_ID_NOT_MATCH))
-  if (userId !== userIdFromJWT) return res.send(errResponse(baseResponseStatus.USER_USERID_JWT_WRONG))
+  if (!mongoose.isValidObjectId(userIdFromJWT)) return res.send(errResponse(baseResponseStatus.USER_ID_NOT_MATCH))
   const user = await userService.deleteUser(userIdFromJWT)
   return res.send(user)
 }
