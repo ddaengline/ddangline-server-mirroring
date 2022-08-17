@@ -51,7 +51,6 @@ exports.getPlaces = async(req, res) => {
 exports.getPlace = async(req, res) => {
   const userIdFromJWT = req.verifiedToken.userId
   const placeId = req.params.placeId;
-  console.log(placeId)
   if (!placeId || placeId === ':placeId') return res.send(errResponse(baseResponseStatus.PLACE_ID_EMPTY))
   const result = await placeProvider.getPlace(placeId, userIdFromJWT);
   return res.send(result)
@@ -84,7 +83,6 @@ exports.updatePlaceStatus = async(req, res) => {
   const status = Number(value)
   if ((status !== 1 && status !== -1) || (domain !== "liked" && domain !== "visited"))
     return res.send(errResponse(baseResponseStatus.PLACE_UPDATE_STATUS_WRONG))
-  logger.debug(`[App] 좋아요/가본곳 Request 파라미터들, domain : ${domain}, status: ${status}`)
   const updatePlaceRes = await placeService.updatePlaceStatus(userIdFromJWT, placeId, status, domain)
   return res.send(updatePlaceRes)
 }

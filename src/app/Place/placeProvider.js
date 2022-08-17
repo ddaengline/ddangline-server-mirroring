@@ -65,7 +65,6 @@ exports.getPlaces = async(userId, searchParams, categoryId, pageOffSet) => {
       if (!station) return errResponse(baseResponseStatus.PLACE_STATION_EMPTY);
       if (!time) return errResponse(baseResponseStatus.PLACE_TIME_EMPTY);
       if (!domain) return errResponse(baseResponseStatus.PLACE_DOMAIN_EMPTY);
-
       result = await placeDao.getPlaces(userId, categoryId, pageOffSet, station, time, domain);
     }
     return response(baseResponseStatus.SUCCESS, result);

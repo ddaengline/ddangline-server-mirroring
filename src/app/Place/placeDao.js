@@ -94,18 +94,24 @@ async function getPlaces(userId, categoryName, pageOffSet, station, time, domain
 }
 
 async function getPlace(placeId, userId){
-  return Place.findOne({ _id: placeId }, {
-    _id: 1,
-    name: 1,
-    station: { $arrayElemAt: ['$station', 0] },
-    domain: 1,
-    "location.coordinates": 1,
-    isLiked: { $in: [ObjectId(userId), '$liked'] },
-    isMarked: { $in: [ObjectId(userId), '$marked'] },
-    isVisited: { $in: [ObjectId(userId), '$visited'] },
-    tips: 1,
-    images: 1
-  })
+  switch (arguments.length) {
+    case 1:
+      return Place.findById(placeId)
+    case 2:
+      return Place.findOne({ _id: placeId }, {
+        _id: 1,
+        name: 1,
+        station: { $arrayElemAt: ['$station', 0] },
+        domain: 1,
+        "location.coordinates": 1,
+        isLiked: { $in: [ObjectId(userId), '$liked'] },
+        isMarked: { $in: [ObjectId(userId), '$marked'] },
+        isVisited: { $in: [ObjectId(userId), '$visited'] },
+        tips: 1,
+        totalTips: 1,
+        images: 1
+      })
+  }
 }
 
 async function createPlace(req){
@@ -151,18 +157,9 @@ async function updatePlaceStatus(placeId, userId, status, domain){
 }
 
 async function isCheck(placeId, userId, domain){
-  if (domain === "liked") return Place.aggregate().match({
-    $expr: { $in: [ObjectId(userId), "$liked"] },
-    _id: ObjectId(placeId)
-  })
-  if (domain === "marked") return Place.aggregate().match({
-    $expr: { $in: [ObjectId(userId), "$marked"] },
-    _id: ObjectId(placeId)
-  })
-  if (domain === "visited") return Place.aggregate().match({
-    $expr: { $in: [ObjectId(userId), "$visited"] },
-    _id: ObjectId(placeId)
-  })
+  if (domain === "liked") return Place.findOne({ _id: placeId, liked: userId })
+  if (domain === "marked") return Place.findOne({ _id: placeId, marked: userId })
+  if (domain === "visited") return Place.findOne({ _id: placeId, visited: userId })
 }
 
 module.exports = {
