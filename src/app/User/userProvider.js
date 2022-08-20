@@ -3,6 +3,7 @@ const { MONGO_URI, dbName } = require('../../../config/secret');
 const { response, errResponse } = require('../../../config/response');
 const baseResponseStatus = require('../../../config/baseResponseStatus');
 const userDao = require('./userDao');
+const { logger } = require("../../../config/winston");
 
 exports.getUsers = async() => {
   try {
@@ -11,7 +12,8 @@ exports.getUsers = async() => {
     connection.disconnect();
     return userList ? response(baseResponseStatus.SUCCESS, userList) : errResponse(baseResponseStatus.DB_ERROR)
   } catch(err) {
-    return err;
+    logger.error(`App - getUsers Service error\n: ${err.message}`)
+    return errResponse(baseResponseStatus.DB_ERROR)
   }
 };
 
@@ -30,7 +32,8 @@ exports.getUserByEmail = async(email) => {
     connection.disconnect();
     return user;
   } catch(err) {
-    return err;
+    logger.error(`App - getUserByEmail Service error\n: ${err.message}`)
+    return errResponse(baseResponseStatus.DB_ERROR)
   }
 };
 
@@ -38,10 +41,10 @@ exports.emailCheck = async(email) => {
   try {
     const connection = await mongoose.connect(MONGO_URI, { dbName });
     const emailCheckResult = await userDao.emailCheck(email);
-    connection.disconnect();
     return emailCheckResult;
   } catch(err) {
-    return err;
+    logger.error(`App - emailCheck Service error\n: ${err.message}`)
+    return errResponse(baseResponseStatus.DB_ERROR)
   }
 };
 
@@ -49,9 +52,9 @@ exports.socialIdCheck = async(id) => {
   try {
     const connection = await mongoose.connect(MONGO_URI, { dbName });
     const socialIdCheck = await userDao.socialIdCheck(id);
-    connection.disconnect();
     return socialIdCheck;
   } catch(err) {
-    return err;
+    logger.error(`App - socialIdCheck Service error\n: ${err.message}`)
+    return errResponse(baseResponseStatus.DB_ERROR)
   }
 }

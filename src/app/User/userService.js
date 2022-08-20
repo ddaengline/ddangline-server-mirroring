@@ -8,7 +8,7 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const userProvider = require('./userProvider');
 const userDao = require('./userDao');
-const collectionDao =require('../Collection/collectionDao')
+const collectionDao = require('../Collection/collectionDao')
 
 
 exports.createUser = async(postParams) => {
@@ -53,9 +53,8 @@ exports.updateUserName = async(id, name) => {
   try {
     const connection = await mongoose.connect(MONGO_URI, { dbName });
     const updatedUser = await userDao.updateUserName(id, name);
-    connection.disconnect();
     return response(baseResponseStatus.SUCCESS, updatedUser)
-  } catch(e) {
+  } catch(err) {
     logger.error(`App - updateUserName Service error\n: ${err.message}`)
     return errResponse(baseResponseStatus.DB_ERROR)
   }
@@ -64,15 +63,14 @@ exports.updateUserName = async(id, name) => {
 exports.updateUserPassword = async(id, currentPassword, newPassword) => {
   try {
     const connection = await mongoose.connect(MONGO_URI, { dbName });
-    const pw = await userDao.getPassword(id, currentPassword)
+    const pw = await userDao.getPassword(id)
     const hashedCurrentPw = await crypto.createHash('sha512').update(currentPassword).digest('hex');
     if (pw.password !== hashedCurrentPw) return errResponse(baseResponseStatus.SIGNIN_PASSWORD_WRONG)
     const hashedPassword = await crypto.createHash('sha512').update(newPassword).digest('hex');
     await userDao.updateUserPassword(id, hashedPassword);
-    connection.disconnect();
     const { isSuccess, code } = baseResponseStatus.SUCCESS;
     return response({ isSuccess, code, message: '비밀번호 변경 성공' })
-  } catch(e) {
+  } catch(err) {
     logger.error(`App - updateUserPassword Service error\n: ${err.message}`)
     return errResponse(baseResponseStatus.DB_ERROR)
   }
@@ -81,8 +79,8 @@ exports.updateUserPassword = async(id, currentPassword, newPassword) => {
 exports.deleteUser = async(id) => {
   try {
     const connection = await mongoose.connect(MONGO_URI, { dbName });
+    connection.set('debug', true)
     await userDao.deleteUser(id);
-    connection.disconnect();
     const { isSuccess, code } = baseResponseStatus.SUCCESS;
     return response({ isSuccess, code, message: '회원 탈퇴 성공' })
   } catch(e) {
