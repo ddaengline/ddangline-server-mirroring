@@ -23,7 +23,7 @@ const PlcaeSchema = new Schema(
     images: { type: [], trim: true },
     totalTips: { type: Number, required: true, default: 0 }, // computed field
     tips: [{
-      _id: { type: [Types.ObjectId], ref: 'tip' },
+      _id: { type: Types.ObjectId, ref: 'tip' },
       userId: { type: Types.ObjectId, required: true, ref: 'user' },
       content: { type: String, required: true, trim: true },
     }],

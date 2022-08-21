@@ -22,11 +22,13 @@ exports.deleteTip = async(placeId, tipId, userId) => {
   try {
     const connection = await mongoose.connect(MONGO_URI, { dbName });
     const [deleteTipRes] = await tipDao.deleteTip(tipId, placeId)
+    if(!deleteTipRes) return errResponse(baseResponseStatus.TIP_ALREADY_DELETED)
     let message = deleteTipRes.content
     if (message.length > 5) message = message.slice(0, 5) + "..."
     const { isSuccess, code } = baseResponseStatus.SUCCESS;
     return response({ isSuccess, code, message: `${message}이(가) 삭제되었습니다.` })
   } catch(err) {
+    console.log({ err })
     logger.error(`App - deleteTip Service error\n: ${err.message}`)
     return errResponse(baseResponseStatus.DB_ERROR)
   }
