@@ -1,5 +1,4 @@
 const { Schema, model, Types } = require('mongoose');
-
 const PlcaeSchema = new Schema(
   {
     name: { type: String, required: true, trim: true },
@@ -20,18 +19,14 @@ const PlcaeSchema = new Schema(
         required: true,
       },
     },
-    link: { type: [], trim: true },
+    link: { type: [], trim: true }, // todo: 없애야하는 필드
     images: { type: [], trim: true },
     totalTips: { type: Number, required: true, default: 0 }, // computed field
-    tips: {
-      type: [
-        {
-          _id: { type: Types.ObjectId, required: true, ref: 'tip' },
-          userId: { type: Types.ObjectId, required: true, ref: 'user' },
-          content: { type: String, required: true, trim: true },
-        },
-      ],
-    },
+    tips: [{
+      _id: { type: [Types.ObjectId], ref: 'tip' },
+      userId: { type: Types.ObjectId, required: true, ref: 'user' },
+      content: { type: String, required: true, trim: true },
+    }],
     totalLiked: { type: Number, default: 0 },
     liked: { type: [Types.ObjectId], ref: 'user' },
     totalMarked: { type: Number, default: 0 },

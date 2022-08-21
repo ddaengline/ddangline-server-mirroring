@@ -8,6 +8,7 @@ const TipSchema = new Schema(
   },
   { timestamps: true }
 );
-TipSchema.index({ placeId: 1, userId: 1 })
+// TODO: createAt: -1로 걸어야하는가?
+TipSchema.index({ placeId: 1, createdAt: -1 })
 const Tip = model('tip', TipSchema);
 module.exports = { Tip, TipSchema };
