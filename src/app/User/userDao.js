@@ -59,9 +59,8 @@ async function getPassword(_id){
   return User.findOne({ _id, status: "ACTIVE" }, { password: 1 })
 }
 
-async function socialIdCheck(id){
-  const result = await User.findOne({ 'social.uniqueId': id })
-  return result ? true : false;
+async function getSocialId(id){
+  return User.findOne({ "social.uniqueId": id, status: "ACTIVE" })
 }
 
 module.exports = {
@@ -74,5 +73,5 @@ module.exports = {
   getUserByEmail,
   getPassword,
   emailCheck,
-  socialIdCheck,
+  getSocialId,
 };

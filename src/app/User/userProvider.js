@@ -48,11 +48,11 @@ exports.emailCheck = async(email) => {
   }
 };
 
-exports.socialIdCheck = async(id) => {
+exports.getSocialId = async(id) => {
   try {
     const connection = await mongoose.connect(MONGO_URI, { dbName });
-    const socialIdCheck = await userDao.socialIdCheck(id);
-    return socialIdCheck;
+    const socialId = await userDao.getSocialId(id);
+    return socialId;
   } catch(err) {
     logger.error(`App - socialIdCheck Service error\n: ${err.message}`)
     return errResponse(baseResponseStatus.DB_ERROR)

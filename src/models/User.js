@@ -8,7 +8,7 @@ const UserSchema = new Schema(
       uniqueId: { type: String, unique: true, trim: true },
       type: { type: String, enum: ['APPLE', 'KAKAO', 'GOOGLE'], default: 'APPLE', trim: true },
     },
-    password: { type: String, required: true, trim: true },
+    password: { type: String, trim: true },
     status: { type: String, required: true, enum: ['ACTIVE', 'SLEEP', 'WITHDRAWAL'], default: 'ACTIVE' },
   },
   { timestamps: true }

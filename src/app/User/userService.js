@@ -14,24 +14,32 @@ const collectionDao = require('../Collection/collectionDao')
 exports.createUser = async(postParams) => {
   try {
     const { username, email, social, password } = postParams
-    if (!password) return errResponse(baseResponseStatus.SIGNUP_PASSWORD_EMPTY)
+    const connection = await mongoose.connect(MONGO_URI, { dbName });
+    let insertUserInfoParams;
+    let hashedPassword;
     if (!social) {
       if (!username) return errResponse(baseResponseStatus.SIGNUP_NICKNAME_EMPTY)
       if (!email) return errResponse(baseResponseStatus.SIGNUP_EMAIL_EMPTY)
+      if (!password) return errResponse(baseResponseStatus.SIGNUP_PASSWORD_EMPTY)
+      hashedPassword = await crypto.createHash('sha512').update(password).digest('hex');
     } else {
       if (!social.uniqueId) return errResponse(baseResponseStatus.SIGNIN_SOCIAL_ID_EMPTY)
-      const socialIdCheck = await userProvider.socialIdCheck(social.uniqueId)
-      if (socialIdCheck) return errResponse(baseResponseStatus.SIGNUP_REDUNDANT_SOCIAL_ID)
+      const socialId = await userProvider.getSocialId(social.uniqueId)
+      if (socialId) { // 소셜 아이디 있으면 바로 로그인
+        let token = await jwt.sign(
+          { userId: socialId._id, },
+          jwtsecret,
+          { subject: 'userInfo', });
+        return response(baseResponseStatus.SUCCESS, { userId: socialId._id, jwt: token });
+      }
     }
     // 이메일 중복
     let userEmailCheck = email
     if (email) userEmailCheck = await userProvider.emailCheck(email)
     if (userEmailCheck) return errResponse(baseResponseStatus.SIGNUP_REDUNDANT_EMAIL)
 
-    const hashedPassword = await crypto.createHash('sha512').update(password).digest('hex');
-    const insertUserInfoParams = { username, email, password: hashedPassword, social };
+    insertUserInfoParams = { username, email, password: hashedPassword, social };
 
-    const connection = await mongoose.connect(MONGO_URI, { dbName });
     const userIdResult = await userDao.createUser(insertUserInfoParams);
     const userId = userIdResult._id;
     await collectionDao.createCollection(userId)
@@ -40,7 +48,6 @@ exports.createUser = async(postParams) => {
     let token = await jwt.sign(
       { userId: userId, },
       jwtsecret,
-      // 유효기간 3시간
       { subject: 'userInfo', });
     return response(baseResponseStatus.SUCCESS, { userId, jwt: token });
   } catch(err) {
