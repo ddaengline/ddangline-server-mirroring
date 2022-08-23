@@ -51,7 +51,6 @@ async function getPlacesInToggle(categoryName, station, time, domain){
 }
 
 async function getPlaces(userId, categoryName, pageOffSet, station, time, domain){
-  // TODO: 좋아요 순 sort
   const limit = 10;
   const skip = limit * pageOffSet;
   switch (arguments.length) {
@@ -59,8 +58,8 @@ async function getPlaces(userId, categoryName, pageOffSet, station, time, domain
     case 3:
       return Place.aggregate()
         .match({ theme: { $in: [categoryName] } })
+        .sort({ totalLiked: -1, _id: 1 })
         .limit(skip + limit)
-        .sort({ _id: 1, totalLiked: -1})
         .skip(skip)
         .project({
           _id: 1, name: 1, domain: 1,
@@ -79,9 +78,9 @@ async function getPlaces(userId, categoryName, pageOffSet, station, time, domain
           walkTime: { $lte: time },
           station: { $in: [station] }
         })
+        .sort({ totalLiked: -1, _id: 1 })
         .limit(skip + limit)
         .skip(skip)
-        .sort({ _id: 1, totalLiked: -1})
         .project({
           _id: 1, name: 1, domain: 1,
           station: { $arrayElemAt: ['$station', 0] },
@@ -102,9 +101,10 @@ async function getPlace(placeId, userId){
       return Place.findOne({ _id: placeId }, {
         _id: 1,
         name: 1,
-        station: { $arrayElemAt: ['$station', 0] },
+        station: 1,
         domain: 1,
-        "location.coordinates": 1,
+        location : "$location.coordinates",
+        totalLiked: 1,
         isLiked: { $in: [ObjectId(userId), '$liked'] },
         isMarked: { $in: [ObjectId(userId), '$marked'] },
         isVisited: { $in: [ObjectId(userId), '$visited'] },

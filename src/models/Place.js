@@ -36,7 +36,7 @@ const PlcaeSchema = new Schema(
   },
   { timestamps: true }
 );
-PlcaeSchema.index({ domain: 1, station: 1, walkTime: 1 })
+PlcaeSchema.index({ totalLiked: -1, domain: 1, station: 1, walkTime: 1 })
 
 const Place = model('place', PlcaeSchema);
 module.exports = { Place };

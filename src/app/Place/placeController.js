@@ -34,7 +34,6 @@ exports.getPlacesInToggle = async(req, res) => {
 exports.getPlaces = async(req, res) => {
   const userIdFromJWT = req.verifiedToken.userId
   const { categoryId } = req.params;
-  console.log(categoryId.length)
   const { station, time, domain, page } = req.query;
   if (!categoryId || categoryId === ":categoryId") return res.send(errResponse(baseResponseStatus.CATEGORY_ID_EMPTY));
   if (!page) return res.send(errResponse(baseResponseStatus.PAGE_FLAG_EMPTY));
