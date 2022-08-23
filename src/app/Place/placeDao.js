@@ -60,12 +60,12 @@ async function getPlaces(userId, categoryName, pageOffSet, station, time, domain
       return Place.aggregate()
         .match({ theme: { $in: [categoryName] } })
         .limit(skip + limit)
-        // .sort({ field: 'asc', totalLiked: -1})
+        .sort({ _id: 1, totalLiked: -1})
         .skip(skip)
         .project({
           _id: 1, name: 1, domain: 1,
           station: { $arrayElemAt: ['$station', 0] },
-          images: 1,
+          images: 1, totalLiked: 1,
           isLiked: { $in: [ObjectId(userId), '$liked'] },
           isMarked: { $in: [ObjectId(userId), '$marked'] },
           isVisited: { $in: [ObjectId(userId), '$visited'] },
@@ -81,11 +81,12 @@ async function getPlaces(userId, categoryName, pageOffSet, station, time, domain
         })
         .limit(skip + limit)
         .skip(skip)
-        // .sort({ field: 'asc', totalLiked: -1})
+        .sort({ _id: 1, totalLiked: -1})
         .project({
           _id: 1, name: 1, domain: 1,
           station: { $arrayElemAt: ['$station', 0] },
           images: { $slice: ["$images", 2] },
+          totalLiked: 1,
           isLiked: { $in: [ObjectId(userId), '$liked'] },
           isMarked: { $in: [ObjectId(userId), '$marked'] },
           isVisited: { $in: [ObjectId(userId), '$visited'] },
