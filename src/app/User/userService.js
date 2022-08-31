@@ -5,6 +5,7 @@ const { logger } = require('../../../config/winston');
 const { response, errResponse } = require('../../../config/response');
 const baseResponseStatus = require('../../../config/baseResponseStatus');
 const jwt = require('jsonwebtoken');
+const fs = require('fs')
 const crypto = require('crypto');
 const userProvider = require('./userProvider');
 const userDao = require('./userDao');
@@ -39,7 +40,6 @@ exports.createUser = async(postParams) => {
     if (userEmailCheck) return errResponse(baseResponseStatus.SIGNUP_REDUNDANT_EMAIL)
 
     insertUserInfoParams = { username, email, password: hashedPassword, social };
-
     const userIdResult = await userDao.createUser(insertUserInfoParams);
     const userId = userIdResult._id;
     await collectionDao.createCollection(userId)
@@ -112,7 +112,6 @@ exports.postSignIn = async(resEmail, resPassword) => {
     let token = await jwt.sign(
       { userId, },
       jwtsecret,
-      // TODO: 유효기간 확인해야하지 않나
       // 유효기간 없음.
       { subject: 'userInfo', });
     return response(baseResponseStatus.SUCCESS, { userId, jwt: token })

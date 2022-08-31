@@ -3,6 +3,8 @@ const userProvider = require('./userProvider');
 const userService = require('./userService');
 const baseResponseStatus = require('../../../config/baseResponseStatus');
 const mongoose = require("mongoose");
+const fs = require("fs");
+const jwt = require("jsonwebtoken");
 
 exports.postUser = async(req, res) => {
   const { username, email, social, password } = req.body;
@@ -55,10 +57,12 @@ exports.updateUserPassword = async(req, res) => {
 
 exports.deleteUser = async(req, res) => {
   const userIdFromJWT = req.verifiedToken.userId
+  const { clientId, code } = req.body
   if (!mongoose.isValidObjectId(userIdFromJWT)) return res.send(errResponse(baseResponseStatus.USER_ID_NOT_MATCH))
   const user = await userService.deleteUser(userIdFromJWT)
   return res.send(user)
 }
+
 
 exports.login = async(req, res) => {
   const { email, password } = req.body;
