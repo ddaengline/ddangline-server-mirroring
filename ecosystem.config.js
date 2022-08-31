@@ -1,10 +1,11 @@
 module.exports = {
   apps : [{
-    name: 'ddang',
+    name: 'ddaeng',
     script: 'index.js',
     watch: '.',
     instances: 'max',
     exec_mode: 'cluster',
+    ignore_watch:["log/*", "node_modules", ".env"],
   }],
 
   deploy : {
