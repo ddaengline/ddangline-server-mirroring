@@ -4,6 +4,12 @@ const { Place } = require('../../models/Place')
 const mongoose = require("mongoose");
 const ObjectId = mongoose.Types.ObjectId
 
+// 기본(임시) 유저 생성
+async function createDefaultUser(){
+  const user = new User()
+  return user.save()
+}
+
 // 유저 생성
 async function createUser(insertUserInfoParams){
   const user = new User(insertUserInfoParams);
@@ -64,14 +70,10 @@ async function getSocialId(id){
 }
 
 module.exports = {
-  createUser,
-  getUsers,
-  getUser,
-  updateUserName,
-  updateUserPassword,
+  createDefaultUser, createUser,
+  getUsers, getUser,
+  updateUserName, updateUserPassword,
   deleteUser,
-  getUserByEmail,
-  getPassword,
+  getUserByEmail, getPassword, getSocialId,
   emailCheck,
-  getSocialId,
 };

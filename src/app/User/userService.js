@@ -5,12 +5,31 @@ const { logger } = require('../../../config/winston');
 const { response, errResponse } = require('../../../config/response');
 const baseResponseStatus = require('../../../config/baseResponseStatus');
 const jwt = require('jsonwebtoken');
-const fs = require('fs')
 const crypto = require('crypto');
 const userProvider = require('./userProvider');
 const userDao = require('./userDao');
 const collectionDao = require('../Collection/collectionDao')
 
+// 임시 유저 회원가입
+exports.createDefaultUser = async() => {
+  try {
+    const connection = await mongoose.connect(MONGO_URI, { dbName });
+    const createdUser = await userDao.createDefaultUser()
+    const userId = createdUser._id
+    await collectionDao.createCollection(userId)
+    connection.disconnect();
+    // access token 생성
+    let token = await jwt.sign(
+      { userId },
+      jwtsecret,
+      { subject: 'userInfo', });
+    return response(baseResponseStatus.SUCCESS, { userId, jwt: token });
+  } catch(err) {
+    console.log({ err })
+    // logger.error(`App - createDefaultUser Service error\n: ${err.message}`)
+    return errResponse(baseResponseStatus.DB_ERROR);
+  }
+}
 
 exports.createUser = async(postParams) => {
   try {
@@ -46,7 +65,7 @@ exports.createUser = async(postParams) => {
     connection.disconnect();
     // access token 생성
     let token = await jwt.sign(
-      { userId: userId, },
+      { userId },
       jwtsecret,
       { subject: 'userInfo', });
     return response(baseResponseStatus.SUCCESS, { userId, jwt: token });
@@ -86,7 +105,6 @@ exports.updateUserPassword = async(id, currentPassword, newPassword) => {
 exports.deleteUser = async(id) => {
   try {
     const connection = await mongoose.connect(MONGO_URI, { dbName });
-    connection.set('debug', true)
     await userDao.deleteUser(id);
     const { isSuccess, code } = baseResponseStatus.SUCCESS;
     return response({ isSuccess, code, message: '회원 탈퇴 성공' })

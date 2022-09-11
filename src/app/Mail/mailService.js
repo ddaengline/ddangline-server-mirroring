@@ -33,7 +33,6 @@ exports.sendCode = async(mailToSend) => {
     const params = { email: mailToSend, code: authCode };
     const { MAIL_HOST, MAIL_SERVICE, MAIL_SENDER, MAIL_PASSWORD } = process.env;
     const emailTemplate = await ejs.renderFile(appDir + '/src/template/authMail.ejs', { authCode });
-
     const transporter = nodemail.createTransport({
       service: MAIL_SERVICE,
       host: MAIL_HOST,
@@ -46,7 +45,6 @@ exports.sendCode = async(mailToSend) => {
         rejectUnauthorized: false,
       },
     });
-
     const mailOption = {
       from: `땡호선 no-reply@ddangline.shop`, // sender address
       to: mailToSend, // list of receivers
@@ -57,7 +55,6 @@ exports.sendCode = async(mailToSend) => {
     const connection = await mongoose.connect(MONGO_URI, { dbName });
     let mailObject = await MailAuthentication.findOneAndDelete({ email: mailToSend });
     mailObject = new MailAuthentication(params);
-
     await Promise.all([transporter.sendMail(mailOption), mailObject.save()]);
     Promise.all([connection.disconnect(), transporter.close()]);
     const { isSuccess, code } = baseResponse.SUCCESS;

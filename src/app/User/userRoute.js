@@ -3,6 +3,9 @@ module.exports = function(app){
   const jwtMiddleware = require('../../../config/jwtMiddleware')
   const AppleMiddleware = require('../../../config/AppleMiddleware')
 
+  // 임시 유저 회원가입
+  // TODO: 임시유저 -> 로그인했을 때 로직 처리
+  app.get('/app/v1/users/default', user.postDefaultUser)
   // 회원가입
   app.post(`/app/v1/users`, user.postUser)
   // test

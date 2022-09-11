@@ -1,3 +1,4 @@
+const place = require("./placeController");
 module.exports = function(app){
   const place = require('./placeController');
   const jwtMiddleware = require('../../../config/jwtMiddleware');
@@ -18,4 +19,6 @@ module.exports = function(app){
   // app.post('/app/v1/place', place.createPlace)
   // 장소 한 번에 import
   app.get('/admin/v1/places', place.adminCreatePlaces);
+  // TODO: 관광데이터포털
+  app.get('/app/v1/places/tourism/tour', place.getTourism)
 };

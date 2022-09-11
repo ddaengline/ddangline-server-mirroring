@@ -6,6 +6,11 @@ const mongoose = require("mongoose");
 const fs = require("fs");
 const jwt = require("jsonwebtoken");
 
+exports.postDefaultUser = async(req, res) => {
+  const user = await userService.createDefaultUser();
+  return res.send(user)
+}
+
 exports.postUser = async(req, res) => {
   const { username, email, social, password } = req.body;
   let postParams = {}
