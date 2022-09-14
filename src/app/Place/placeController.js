@@ -19,7 +19,6 @@ exports.getCategory = async(req, res) => {
 
 exports.getPlacesInToggle = async(req, res) => {
   const categoryId = req.params.categoryId;
-
   const { station, time, domain } = req.query;
   if (!categoryId) return res.send(errResponse(baseResponseStatus.CATEGORY_ID_EMPTY));
 
