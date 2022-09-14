@@ -25,7 +25,7 @@ exports.getCategory = async(searchParams) => {
       if (!time) return errResponse(baseResponseStatus.PLACE_TIME_EMPTY);
       if (!domain) return errResponse(baseResponseStatus.PLACE_DOMAIN_EMPTY);
       categories = await placeDao.getCategory(station, time, domain);
-      if (domain === "문화공간") categories.unshift({ _id: TourAPI })  // 투어 api 추가
+      if (domain === "문화시설") categories.unshift({ _id: TourAPI })  // 투어 api 추가
     }
     result = { size: categories.length, categories };
     return response(baseResponseStatus.SUCCESS, result);
